@@ -68,13 +68,15 @@ LED: Blue
 
 ## Adding Libraries
 
-To add an ESP-IDF component library:
+To add an ESP-IDF component library, run this in Terminal from your project's source folder, the one containing `build.sh` and `main/`. In Xcode's Project navigator, Control-click that folder (it has your project's name) and choose **Open Terminal at Location** to get there:
 
 ```bash
-bash scripts/add_library.sh espressif/led_strip led_strip.h
+~/.espswift/scripts/add_library.sh espressif/button iot_button.h
 ```
 
-This automatically updates `main/idf_component.yml` and `main/BridgingHeader.h`.
+This automatically updates `main/idf_component.yml` and `main/BridgingHeader.h`. Press `Cmd+B` to download and build the library.
+
+Every new project also includes a `README.md` that walks through this and other common tasks, such as changing ESP-IDF settings with `idf.py menuconfig`.
 
 Available libraries: [ESP-IDF Component Registry](https://components.espressif.com)
 
@@ -147,6 +149,7 @@ Embedded-Swift-Xcode-Template/
 └── Xcode Template/
 └── ESP32-C6.xctemplate/
 ├── TemplateInfo.plist       # Xcode template configuration
+├── README.md                # Getting-started guide for the new project
 ├── build.sh                 # ESP-IDF build + flash wrapper
 ├── CMakeLists.txt           # Root CMake configuration
 ├── sdkconfig.defaults       # ESP-IDF defaults (watchdog off)

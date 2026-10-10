@@ -24,6 +24,15 @@
 			<key>TargetIndices</key>
 			<array/>
 		</dict>
+		<key>README.md</key>
+		<dict>
+			<key>Path</key>
+			<string>README.md</string>
+			<key>IsTopLevel</key>
+			<true/>
+			<key>TargetIndices</key>
+			<array/>
+		</dict>
 		<key>build.sh</key>
 		<dict>
 			<key>Path</key>
@@ -91,6 +100,7 @@
 	<string>Xcode.Xcode3.ProjectTemplateUnitKind</string>
 	<key>Nodes</key>
 	<array>
+		<string>README.md</string>
 		<string>build.sh</string>
 		<string>CMakeLists.txt</string>
 		<string>sdkconfig.defaults</string>

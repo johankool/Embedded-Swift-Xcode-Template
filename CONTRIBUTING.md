@@ -71,6 +71,7 @@ Embedded-Swift-Xcode-Template/
 └── Xcode Template/
 └── ESP32-C6.xctemplate/
 ├── TemplateInfo.plist
+├── README.md
 ├── build.sh
 ├── CMakeLists.txt
 ├── sdkconfig.defaults
