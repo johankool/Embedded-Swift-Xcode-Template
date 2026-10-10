@@ -1,7 +1,7 @@
 # macOS
 .DS_Store
 
-# ESP-IDF build output
+# ESP-IDF build output (Xcode builds go to DerivedData; this is for idf.py from Terminal)
 build/
 
 # ESP-IDF component manager downloads (pinned by dependencies.lock)

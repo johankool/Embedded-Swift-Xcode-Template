@@ -20,9 +20,12 @@
 # application alone, since mismatched bootloader/partition/app versions
 # can cause SHA-256 verification failures at boot time.
 #
-# Usage: bash flash.sh <project_directory>
+# Usage: bash flash.sh <project_directory> [build_directory]
 # Where <project_directory> is the folder containing CMakeLists.txt
-# and a build/ subdirectory (e.g. ~/Developer/MyProject/MyProject).
+# (e.g. ~/Developer/MyProject/MyProject), and [build_directory] is the
+# ESP-IDF build directory. When built from Xcode, the build directory
+# lives in DerivedData and build.sh passes it in; it defaults to the
+# build/ subdirectory of the project directory.
 
 # ── Argument Validation ──────────────────────────────────────────
 
@@ -38,11 +41,13 @@ if [ -z "$PROJECT_DIR" ]; then
     exit 1
 fi
 
-# The build/ subdirectory is created by idf.py build. Its absence means
+# The build directory is created by idf.py build. Its absence means
 # the project hasn't been built yet, so there's nothing to flash.
 # -d tests whether the path exists and is a directory.
-if [ ! -d "$PROJECT_DIR/build" ]; then
-    echo "Error: Build directory not found at $PROJECT_DIR/build" >&2
+BUILD_DIR="${2:-$PROJECT_DIR/build}"
+
+if [ ! -d "$BUILD_DIR" ]; then
+    echo "Error: Build directory not found at $BUILD_DIR" >&2
     echo "Please build the project first." >&2
     exit 1
 fi
@@ -102,11 +107,13 @@ cd "$PROJECT_DIR" || exit 1
 echo "Flashing project to $PORT..."
 
 # Run idf.py flash with the detected port.
+#   -B <dir>   : the build directory to flash from.
 #   -p <port>  : the serial port to write to.
-#   flash      : the action; reads build/flash_args and writes all
-#                three binaries (bootloader, partition table, app).
+#   flash      : the action; reads flash_args from the build directory
+#                and writes all three binaries (bootloader, partition
+#                table, app).
 # idf.py handles baud rate negotiation, reset sequencing, and SHA
 # verification automatically.
-idf.py -p "$PORT" flash
+idf.py -B "$BUILD_DIR" -p "$PORT" flash
 
 echo "Flash complete."

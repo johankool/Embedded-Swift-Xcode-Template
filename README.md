@@ -109,6 +109,12 @@ This is expected. Xcode runs a macOS helper tool on your Mac, which builds and f
 
 The first build downloads ESP-IDF component dependencies (~minutes). Subsequent builds are incremental and much faster (~35 seconds).
 
+### Where is the build output?
+
+Like any Xcode project, the build output lives in DerivedData, not in your project folder: `~/Library/Developer/Xcode/DerivedData/<Project>-<hash>/Build/Intermediates.noindex/<Project>.build/Debug/<Project>.build/esp-idf/`. **Product ▸ Show Build Folder in Finder** takes you to the `Build` folder above it, and **Product ▸ Clean Build Folder** removes it.
+
+Running `idf.py` yourself from Terminal uses ESP-IDF's default `build/` folder in the project directory instead, which is a separate build. Pass `-B <path>` to reuse the Xcode one.
+
 ### My board isn't detected
 
 Run `ls /dev/cu.*` with the board connected. Supported USB interfaces:

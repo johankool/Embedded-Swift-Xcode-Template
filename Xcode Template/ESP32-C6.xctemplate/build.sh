@@ -71,13 +71,29 @@ export CMAKE_Swift_COMPILER="$ESPSWIFT_TOOLCHAIN/usr/bin/swiftc"
 TOOLCHAINS=$(/usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$ESPSWIFT_TOOLCHAIN/Info.plist")
 export TOOLCHAINS
 
+# ── Build Directory ──────────────────────────────────────────────
+
+# Keep ESP-IDF's build output out of the source tree, in Xcode's
+# DerivedData like any other Xcode build. Xcode passes its build
+# settings to this script as environment variables; TARGET_TEMP_DIR
+# is this target's intermediates folder, so Product > Clean Build
+# Folder and deleting DerivedData both remove it.
+# Outside Xcode, fall back to ESP-IDF's default ./build directory.
+if [ -n "$TARGET_TEMP_DIR" ]; then
+    BUILD_DIR="$TARGET_TEMP_DIR/esp-idf"
+else
+    BUILD_DIR="$PWD/build"
+fi
+
+echo "Build directory: $BUILD_DIR"
+
 # ── Target Setup ─────────────────────────────────────────────────
 
 # Set the target to esp32c6 on first build (creates sdkconfig).
 # Every idf.py call exits on failure so Xcode reports the build as failed.
 if [ ! -f "sdkconfig" ]; then
     echo "Setting target to esp32c6..."
-    idf.py set-target esp32c6 || exit 1
+    idf.py -B "$BUILD_DIR" set-target esp32c6 || exit 1
 fi
 
 # ── Action ───────────────────────────────────────────────────────
@@ -86,10 +102,10 @@ ACTION=${1:-build}
 
 if [ "$ACTION" = "clean" ]; then
     echo "Cleaning project..."
-    idf.py fullclean || exit 1
+    idf.py -B "$BUILD_DIR" fullclean || exit 1
 else
     echo "Building project..."
-    idf.py build || exit 1
+    idf.py -B "$BUILD_DIR" build || exit 1
 
     # After a successful build, attempt to flash the firmware to a
     # connected ESP32-C6 automatically. This mimics the Arduino IDE
@@ -104,7 +120,7 @@ else
         echo "================================================="
         echo " Auto-Flashing to ESP32-C6"
         echo "================================================="
-        "$FLASH_SCRIPT" "$PROJECT_DIR/$PROJECT_NAME" || \
+        "$FLASH_SCRIPT" "$PWD" "$BUILD_DIR" || \
             echo "Warning: Flash failed or no device connected."
     fi
 
