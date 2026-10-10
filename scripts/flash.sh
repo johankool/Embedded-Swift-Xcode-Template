@@ -60,19 +60,12 @@ export IDF_PATH="$HOME/.espswift/esp-idf"
 # system-bundled Python that might be too old.
 export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:$PATH"
 
-# Locate the ESP-IDF Python virtual environment. ESP-IDF installs its
-# Python dependencies into a versioned directory like:
-#   ~/.espressif/python_env/idf6.1_py3.11_env/
-# The version suffix changes between ESP-IDF releases, so we glob for
-# any matching directory and take the first one. (-maxdepth 1 prevents
-# find from descending into the matched directories; head -1 picks the
-# first result in case there are multiple installations.)
-IDF_PYTHON_ENV_PATH=$(find "$HOME/.espressif/python_env" -maxdepth 1 -type d -name "idf*py3.11*" | head -1)
-export IDF_PYTHON_ENV_PATH
-
 # Source ESP-IDF's setup script. This adds idf.py to PATH and exports
 # additional environment variables (IDF_TOOLS_EXPORT_CMD, etc.) that
-# idf.py needs to find its tools.
+# idf.py needs to find its tools. It also selects the Python virtual
+# environment (~/.espressif/python_env/idf<version>_py<version>_env/)
+# matching this ESP-IDF version and the detected python3, so
+# IDF_PYTHON_ENV_PATH is deliberately left unset.
 source "$IDF_PATH/export.sh"
 
 # ── Port Detection ───────────────────────────────────────────────

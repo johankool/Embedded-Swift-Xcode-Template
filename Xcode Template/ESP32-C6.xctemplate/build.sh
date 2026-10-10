@@ -31,8 +31,8 @@ fi
 
 # Use the default ESP-IDF tools path (~/.espressif)
 # IDF_TOOLS_PATH override did not work as expected during installation.
-IDF_PYTHON_ENV_PATH=$(find "$HOME/.espressif/python_env" -maxdepth 1 -type d -name "idf*py3.11*" | head -1)
-export IDF_PYTHON_ENV_PATH
+# IDF_PYTHON_ENV_PATH is left unset: export.sh selects the Python virtual
+# environment matching this ESP-IDF version and the detected python3.
 
 # Xcode's PATH is restricted. Add Homebrew BEFORE sourcing export.sh
 # so that ESP-IDF can find python3.
