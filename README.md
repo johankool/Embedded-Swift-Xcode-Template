@@ -144,6 +144,7 @@ Embedded-Swift-Xcode-Template/
 ├── build.sh                 # ESP-IDF build + flash wrapper
 ├── CMakeLists.txt           # Root CMake configuration
 ├── sdkconfig.defaults       # ESP-IDF defaults (watchdog off)
+├── gitignore                # Installed as .gitignore at the project root
 └── main/
 ├── CMakeLists.txt       # Component configuration
 ├── idf_component.yml    # ESP-IDF dependencies

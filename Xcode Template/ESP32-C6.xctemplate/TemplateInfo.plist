@@ -10,6 +10,13 @@
 	<true/>
 	<key>Definitions</key>
 	<dict>
+		<key>../.gitignore</key>
+		<dict>
+			<key>Path</key>
+			<string>gitignore</string>
+			<key>TargetIndices</key>
+			<array/>
+		</dict>
 		<key>CMakeLists.txt</key>
 		<dict>
 			<key>Path</key>
@@ -91,6 +98,7 @@
 		<string>main/CMakeLists.txt</string>
 		<string>main/idf_component.yml</string>
 		<string>main/main.swift</string>
+		<string>../.gitignore</string>
 	</array>
 	<key>SortOrder</key>
 	<integer>1</integer>

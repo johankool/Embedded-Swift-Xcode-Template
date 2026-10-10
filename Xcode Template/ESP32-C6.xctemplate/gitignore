@@ -1,0 +1,14 @@
+# macOS
+.DS_Store
+
+# ESP-IDF build output
+build/
+sdkconfig.old
+
+# ESP-IDF component manager downloads (pinned by dependencies.lock)
+managed_components/
+
+# Xcode user data
+xcuserdata/
+*.xcuserstate
+DerivedData/
