@@ -177,7 +177,7 @@ Running `install.sh` or `ESPSwiftInstaller.app` installs the following into your
 
 | Path | Contents |
 |------|----------|
-| `~/.espswift/esp-idf/` | ESP-IDF 6.1 (~2.5 GB) |
+| `~/.espswift/esp-idf/` | ESP-IDF 6.1 (~750 MB) |
 | `~/.espswift/scripts/` | Helper scripts (flash, monitor, etc.) |
 | `~/.espressif/` | ESP-IDF Python tools and toolchains (~500 MB) |
 | `~/.swiftly/` | swiftly toolchain manager |
@@ -185,6 +185,17 @@ Running `install.sh` or `ESPSwiftInstaller.app` installs the following into your
 | `~/Library/Developer/Xcode/Templates/` | ESP32-C6 Xcode template |
 
 Nothing is installed to system directories. Everything is scoped to your user home directory.
+
+### Switching ESP-IDF versions
+
+`install.sh` installs a fixed ESP-IDF release (the `IDF_VERSION` setting at the top of the script) and never replaces an existing `~/.espswift/esp-idf`. Installs made before the version was pinned cloned ESP-IDF's development `master` branch; re-running `install.sh` warns about this. To switch to the pinned release:
+
+```bash
+rm -rf ~/.espswift/esp-idf
+bash install.sh
+```
+
+Then, in each existing project, press `Cmd+Shift+K` followed by `Cmd+B` in Xcode. ESP-IDF updates the project's `sdkconfig` for the new version; review that change before committing it.
 
 ---
 

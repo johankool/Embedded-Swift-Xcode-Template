@@ -26,6 +26,12 @@ ESPSWIFT_HOME="$HOME/.espswift"
 # ESP-IDF will be cloned into this subdirectory.
 IDF_PATH="$ESPSWIFT_HOME/esp-idf"
 
+# The ESP-IDF release to install. Pinned to a stable release tag so
+# every install gets the same, tested version; cloning without a tag
+# would give whatever ESP-IDF's master branch is on that day.
+# Releases: https://github.com/espressif/esp-idf/releases
+IDF_VERSION="v6.1"
+
 # ESP-IDF's own tool installer (xtensa toolchain, openocd, etc.)
 # will place binaries here instead of the default ~/.espressif/.
 # IDF_TOOLS_PATH="$ESPSWIFT_HOME/tools"
@@ -44,12 +50,24 @@ echo "[1/4] Installing ESP-IDF..."
 if [ -d "$IDF_PATH" ]; then
     # Skip cloning if ESP-IDF is already present.
     # The user can run this script again safely without re-downloading.
-    echo "ESP-IDF already installed. Skipping."
+    # An existing installation is never replaced automatically, but
+    # warn if it is not the pinned release (e.g. an older install that
+    # cloned master).
+    INSTALLED_IDF_VERSION=$(git -C "$IDF_PATH" describe --tags 2>/dev/null || echo "unknown")
+    if [ "$INSTALLED_IDF_VERSION" = "$IDF_VERSION" ]; then
+        echo "ESP-IDF $IDF_VERSION already installed. Skipping."
+    else
+        echo "Warning: ESP-IDF at $IDF_PATH is $INSTALLED_IDF_VERSION, not $IDF_VERSION." >&2
+        echo "To switch, remove it with 'rm -rf $IDF_PATH' and run this script again." >&2
+    fi
 else
-    # Clone ESP-IDF with all submodules.
+    # Clone the pinned ESP-IDF release with all submodules.
     # --recursive is required because ESP-IDF depends on several
     # git submodules (mbedtls, esp-mqtt, etc.).
-    git clone --recursive https://github.com/espressif/esp-idf.git "$IDF_PATH"
+    # --depth 1 and --shallow-submodules skip the git history, which
+    # is not needed to build and makes the download much smaller.
+    git clone --recursive --branch "$IDF_VERSION" --depth 1 --shallow-submodules \
+        https://github.com/espressif/esp-idf.git "$IDF_PATH"
     
     # Install only the ESP32-C6 target to minimize download size.
     # Passing IDF_TOOLS_PATH redirects all binaries to ~/.espswift/tools/
