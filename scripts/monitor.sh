@@ -11,7 +11,9 @@
 # serial terminal for interactive input.
 
 # Use ESP-IDF's Python environment (has pyserial pre-installed).
-IDF_PYTHON=$(find "$HOME/.espressif/python_env" -maxdepth 1 -type d -name "idf*py3.11*" | head -1)/bin/python
+# Environments are named idf<IDF version>_py<Python version>_env, and
+# both versions change between ESP-IDF releases, so pick the newest.
+IDF_PYTHON=$(find "$HOME/.espressif/python_env" -maxdepth 1 -type d -name "idf*_py*_env" | sort -V | tail -1)/bin/python
 
 if [ ! -x "$IDF_PYTHON" ]; then
     echo "Error: ESP-IDF Python environment not found." >&2

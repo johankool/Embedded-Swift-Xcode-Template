@@ -60,6 +60,15 @@ else
     echo "ESP-IDF installed successfully."
 fi
 
+# idf.py requires CMake and Ninja on PATH. On macOS, ESP-IDF expects
+# them to be installed via Homebrew rather than by its own installer.
+export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+
+if ! command -v cmake &>/dev/null || ! command -v ninja &>/dev/null; then
+    echo "Installing CMake and Ninja via Homebrew..."
+    brew install cmake ninja
+fi
+
 
 # ---- Step 2: Embedded Swift Toolchain (via swiftly) ----
 

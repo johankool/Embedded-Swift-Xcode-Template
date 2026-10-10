@@ -114,7 +114,8 @@ The first build downloads ESP-IDF component dependencies (~minutes). Subsequent 
 Run `ls /dev/cu.*` with the board connected. Supported USB interfaces:
 - Native USB-CDC → `/dev/cu.usbmodem*`
 - WCH CH340 → `/dev/cu.wchusbserial*`
-- CP210x → `/dev/cu.SLAB_USBtoUART*`
+- CP210x (macOS built-in driver), FTDI → `/dev/cu.usbserial*`
+- CP210x (legacy Silicon Labs driver) → `/dev/cu.SLAB_USBtoUART*`
 
 CH340-based boards may need a driver: [WCH CH340 Driver](https://www.wch-ic.com/downloads/CH341SER_MAC_ZIP.html)
 

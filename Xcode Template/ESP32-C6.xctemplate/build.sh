@@ -41,22 +41,43 @@ export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:$PATH"
 # Source the ESP-IDF environment so idf.py is on PATH.
 source "$IDF_PATH/export.sh"
 
+# ── Embedded Swift Toolchain ─────────────────────────────────────
+
+# Use the newest installed development snapshot (install.sh installs
+# main-snapshot, whose dated name changes with every snapshot).
+# Set ESPSWIFT_TOOLCHAIN to a .xctoolchain path to pin a specific one.
+# swift-latest.xctoolchain is not used, because it points at whichever
+# toolchain was installed last, which may be a release toolchain.
+if [ -z "$ESPSWIFT_TOOLCHAIN" ]; then
+    ESPSWIFT_TOOLCHAIN=$(ls -d "$HOME/Library/Developer/Toolchains/swift-DEVELOPMENT-SNAPSHOT-"*.xctoolchain 2>/dev/null | sort | tail -1)
+fi
+
+if [ ! -x "$ESPSWIFT_TOOLCHAIN/usr/bin/swiftc" ]; then
+    echo "Error: Embedded Swift development snapshot toolchain not found in ~/Library/Developer/Toolchains." >&2
+    echo "Please run install.sh first." >&2
+    exit 1
+fi
+
+echo "Using toolchain: $ESPSWIFT_TOOLCHAIN"
+
 # AFTER sourcing, prepend the Embedded Swift toolchain so it takes
 # priority over Xcode's default Swift compiler.
-export PATH="$HOME/Library/Developer/Toolchains/swift-DEVELOPMENT-SNAPSHOT-2026-05-07-a.xctoolchain/usr/bin:$PATH"
+export PATH="$ESPSWIFT_TOOLCHAIN/usr/bin:$PATH"
 
 # Force CMake to use the Embedded Swift toolchain compiler.
-export CMAKE_Swift_COMPILER="$HOME/Library/Developer/Toolchains/swift-DEVELOPMENT-SNAPSHOT-2026-05-07-a.xctoolchain/usr/bin/swiftc"
+export CMAKE_Swift_COMPILER="$ESPSWIFT_TOOLCHAIN/usr/bin/swiftc"
 
-# Use the specified Embedded Swift toolchain snapshot.
-export TOOLCHAINS="swift-DEVELOPMENT-SNAPSHOT-2026-05-07-a"
+# Select the same toolchain by its bundle identifier.
+TOOLCHAINS=$(/usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$ESPSWIFT_TOOLCHAIN/Info.plist")
+export TOOLCHAINS
 
 # ── Target Setup ─────────────────────────────────────────────────
 
 # Set the target to esp32c6 on first build (creates sdkconfig).
+# Every idf.py call exits on failure so Xcode reports the build as failed.
 if [ ! -f "sdkconfig" ]; then
     echo "Setting target to esp32c6..."
-    idf.py set-target esp32c6
+    idf.py set-target esp32c6 || exit 1
 fi
 
 # ── Action ───────────────────────────────────────────────────────
@@ -65,10 +86,10 @@ ACTION=${1:-build}
 
 if [ "$ACTION" = "clean" ]; then
     echo "Cleaning project..."
-    idf.py fullclean
+    idf.py fullclean || exit 1
 else
     echo "Building project..."
-    idf.py build
+    idf.py build || exit 1
 
     # After a successful build, attempt to flash the firmware to a
     # connected ESP32-C6 automatically. This mimics the Arduino IDE
