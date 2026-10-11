@@ -243,7 +243,8 @@ This project is being developed as part of the [Swift Mentorship Program](https:
 **Longer-term**
 - [ ] `espswift` CLI (doctor / build / flash / monitor)
 - [ ] `espswift-idf` Swift Package (idiomatic Swift wrappers for ESP-IDF APIs)
-- [x] ESP32-C3 and ESP32-S3 support
+- [x] ESP32-C3 and other RISC-V chips (ESP32-C2, C5, C61, H2, P4)
+- [ ] ESP32-S3 support (needs Xtensa support in Swift)
 - [ ] Homebrew tap
 
 ---
