@@ -56,6 +56,7 @@ Then open a PR on GitHub against the `main` branch.
 
 Embedded-Swift-Xcode-Template/
 ├── install.sh                        # Main setup script
+├── uninstall.sh                      # Removes what install.sh installed
 ├── scripts/
 │   ├── detect_port.sh               # Auto-detects connected ESP32-C6
 │   ├── flash.sh                     # Flashes firmware via idf.py

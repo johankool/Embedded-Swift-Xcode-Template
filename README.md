@@ -137,6 +137,7 @@ After the first `Cmd+B`, close and reopen the project in Xcode. The serial monit
 
 Embedded-Swift-Xcode-Template/
 ├── install.sh                        # One-command environment setup
+├── uninstall.sh                      # Removes what install.sh installed
 ├── scripts/
 │   ├── detect_port.sh               # Auto-detects connected ESP32-C6
 │   ├── flash.sh                     # Flashes firmware via idf.py
@@ -202,24 +203,17 @@ Then, in each existing project, press `Cmd+Shift+K` followed by `Cmd+B` in Xcode
 
 ## Uninstall
 
-To completely remove ESPSwift:
+To remove ESPSwift, run from the repository folder:
 
 ```bash
-# Remove ESP-IDF and helper scripts
-rm -rf ~/.espswift
-
-# Remove ESP-IDF Python tools
-rm -rf ~/.espressif
-
-# Remove Xcode template
-rm -rf ~/Library/Developer/Xcode/Templates/Project\ Templates/Other/ESP32-C6.xctemplate
-
-# Optional: remove the Swift toolchain, if no other projects use it
-swiftly uninstall 6.4.0  # if you use swiftly
-rm -rf ~/Library/Developer/Toolchains/swift-6.4.0-RELEASE.xctoolchain  # otherwise
+bash uninstall.sh
 ```
 
-> **Note:** Earlier versions of `install.sh` installed swiftly in `~/.swiftly/` and a development snapshot toolchain (`swift-DEVELOPMENT-SNAPSHOT-*.xctoolchain`). Remove those only if you don't use swiftly or that toolchain for anything else.
+It removes `~/.espswift` (ESP-IDF, the helper scripts) and the Xcode template. It then asks before removing things other projects may also use: the Swift toolchain (through swiftly, if you use it), ESP-IDF's tools in `~/.espressif`, and ESP-IDF's component download cache. Use `--all` to remove those without asking, and `--yes` to skip the confirmation.
+
+It never removes Homebrew or the packages installed with it (Python, CMake, Ninja), swiftly, or your projects.
+
+> **Note:** Earlier versions of `install.sh` installed swiftly in `~/.swiftly/` and a development snapshot toolchain (`swift-DEVELOPMENT-SNAPSHOT-*.xctoolchain`). `uninstall.sh` leaves those alone; remove them only if you don't use them for anything else.
 
 ---
 
