@@ -33,6 +33,21 @@
 			<key>TargetIndices</key>
 			<array/>
 		</dict>
+		<key>Sources/main.swift</key>
+		<dict>
+			<key>Group</key>
+			<array>
+				<string>Sources</string>
+			</array>
+			<key>IsTopLevel</key>
+			<true/>
+			<key>Path</key>
+			<string>main_main.swift</string>
+			<key>TargetIdentifiers</key>
+			<array>
+				<string>com.espswift.target.indexing</string>
+			</array>
+		</dict>
 		<key>build.sh</key>
 		<dict>
 			<key>Path</key>
@@ -73,17 +88,6 @@
 			<key>TargetIndices</key>
 			<array/>
 		</dict>
-		<key>main/main.swift</key>
-		<dict>
-			<key>Group</key>
-			<array>
-				<string>main</string>
-			</array>
-			<key>Path</key>
-			<string>main_main.swift</string>
-			<key>TargetIndices</key>
-			<array/>
-		</dict>
 		<key>sdkconfig.defaults</key>
 		<dict>
 			<key>Path</key>
@@ -107,7 +111,7 @@
 		<string>main/BridgingHeader.h</string>
 		<string>main/CMakeLists.txt</string>
 		<string>main/idf_component.yml</string>
-		<string>main/main.swift</string>
+		<string>Sources/main.swift</string>
 		<string>../.gitignore</string>
 	</array>
 	<key>Options</key>
@@ -162,6 +166,52 @@
 			<string>com.apple.dt.cocoaLegacyTarget</string>
 			<key>TargetType</key>
 			<string>Legacy</string>
+		</dict>
+		<dict>
+			<key>BuildPhases</key>
+			<array>
+				<dict>
+					<key>Class</key>
+					<string>Sources</string>
+				</dict>
+			</array>
+			<key>Name</key>
+			<string>Indexing</string>
+			<key>ProductType</key>
+			<string>com.apple.product-type.library.static</string>
+			<key>SharedSettings</key>
+			<dict>
+				<key>ALWAYS_SEARCH_USER_PATHS</key>
+				<string>NO</string>
+				<key>EXCLUDED_SOURCE_FILE_NAMES</key>
+				<string>"$(SRCROOT)/___PROJECTNAME___/*" "$(SRCROOT)/___PROJECTNAME___/*/*" "$(SRCROOT)/___PROJECTNAME___/*/*/*" "$(SRCROOT)/___PROJECTNAME___/*/*/*/*" "$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*" "$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*" "$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*" "$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*/*" "$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*/*/*" "$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*/*/*/*" "$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*/*/*/*/*" "$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*/*/*/*/*/*" "$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*/*/*/*/*/*/*" "$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*/*/*/*/*/*/*/*" "$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*" "$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*" *.c *.cc *.cpp *.cxx *.m *.mm *.s *.S</string>
+				<key>OTHER_SWIFT_FLAGS</key>
+				<string>-parse-as-library "@$(PROJECT_DIR)/___PROJECTNAME___/.espswift/swift-flags.rsp"</string>
+				<key>PRODUCT_NAME</key>
+				<string>Indexing</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SKIP_INSTALL</key>
+				<string>YES</string>
+				<key>SWIFT_COMPILATION_MODE</key>
+				<string>wholemodule</string>
+				<key>SWIFT_ENABLE_EMBEDDED</key>
+				<string>YES</string>
+				<key>SWIFT_ENABLE_EXPLICIT_MODULES</key>
+				<string>NO</string>
+				<key>SWIFT_INSTALL_MODULE_ABI_DESCRIPTOR</key>
+				<string>NO</string>
+				<key>SWIFT_OBJC_BRIDGING_HEADER</key>
+				<string>$(PROJECT_DIR)/___PROJECTNAME___/main/BridgingHeader.h</string>
+				<key>SWIFT_TARGET_TRIPLE</key>
+				<string>riscv32-none-none-eabi</string>
+				<key>SWIFT_VERSION</key>
+				<string>5.0</string>
+				<key>TOOLCHAINS</key>
+				<string>ESPSWIFT_SWIFT_TOOLCHAIN_ID</string>
+			</dict>
+			<key>TargetIdentifier</key>
+			<string>com.espswift.target.indexing</string>
 		</dict>
 	</array>
 </dict>

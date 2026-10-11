@@ -115,12 +115,25 @@ fi
 
 ACTION=${1:-build}
 
+# The helper scripts install.sh installed. Set ESPSWIFT_SCRIPTS to use
+# others (tests/test_template.sh uses the repository's own).
+ESPSWIFT_SCRIPTS="${ESPSWIFT_SCRIPTS:-$HOME/.espswift/scripts}"
+
 if [ "$ACTION" = "clean" ]; then
     echo "Cleaning project..."
     idf.py -B "$BUILD_DIR" fullclean || exit 1
 else
     echo "Building project..."
     idf.py -B "$BUILD_DIR" build || exit 1
+
+    # Give the project's Indexing target, which Xcode uses for code
+    # completion and jump-to-definition, the compiler settings of this
+    # build (see setup_indexing.sh). A failure here doesn't fail the build.
+    SETUP_INDEXING="$ESPSWIFT_SCRIPTS/setup_indexing.sh"
+    if [ -f "$SETUP_INDEXING" ]; then
+        bash "$SETUP_INDEXING" "$PWD" "$BUILD_DIR" || \
+            echo "Warning: Could not set up code completion."
+    fi
 fi
 
 # Set ESPSWIFT_BUILD_ONLY=1 to only build, without flashing or setting up
@@ -133,7 +146,7 @@ if [ "$ACTION" != "clean" ] && [ "$ESPSWIFT_BUILD_ONLY" != "1" ]; then
     # If no board is connected, flash.sh will exit with a non-zero
     # status, but we don't propagate that as a build failure since
     # the binary itself built successfully.
-    FLASH_SCRIPT="$HOME/.espswift/scripts/flash.sh"
+    FLASH_SCRIPT="$ESPSWIFT_SCRIPTS/flash.sh"
     if [ -x "$FLASH_SCRIPT" ]; then
         echo ""
         echo "================================================="
@@ -151,7 +164,7 @@ if [ "$ACTION" != "clean" ] && [ "$ESPSWIFT_BUILD_ONLY" != "1" ]; then
     # setup_scheme.sh is idempotent: it skips if the scheme exists,
     # so subsequent builds incur no overhead and user customizations
     # are preserved.
-    SETUP_SCHEME="$HOME/.espswift/scripts/setup_scheme.sh"
+    SETUP_SCHEME="$ESPSWIFT_SCRIPTS/setup_scheme.sh"
     if [ -x "$SETUP_SCHEME" ]; then
         "$SETUP_SCHEME" "$PROJECT_DIR" "$PROJECT_NAME" || true
     fi

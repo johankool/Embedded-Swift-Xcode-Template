@@ -50,6 +50,7 @@ The test doesn't cover Xcode or hardware, so for changes there, also check by ha
 - After running `install.sh` and restarting Xcode, **ESP32 RISC-V** appears under File → New → Project → Other, with the **Chip** pop-up.
 - A new project's `sdkconfig.defaults` has the chip you picked, and `README.md` sits next to the `.xcodeproj`.
 - `Cmd+B` builds and flashes your board, and `Cmd+R` shows its serial output.
+- After that first build, code completion works in `Sources/main.swift` (e.g. typing `led_strip_`), and Command-clicking `vTaskDelay` opens FreeRTOS's `task.h`.
 
 ### 5. Commit
 
@@ -84,6 +85,7 @@ Embedded-Swift-Xcode-Template/
 │   ├── monitor.sh                   # Streams serial output
 │   ├── monitor_wrapper.c            # Native binary wrapper for Xcode
 │   ├── setup_scheme.sh              # Auto-configures Xcode Run scheme
+│   ├── setup_indexing.sh            # Compiler settings for code completion
 │   └── add_library.sh               # Adds ESP-IDF component libraries
 ├── installer/
 │   ├── build_pkg.sh                 # Builds .pkg installer
@@ -97,11 +99,12 @@ Embedded-Swift-Xcode-Template/
 ├── build.sh
 ├── CMakeLists.txt
 ├── sdkconfig.defaults
-└── main/
-├── CMakeLists.txt
-├── idf_component.yml
-├── BridgingHeader.h
-└── main.swift
+├── main/
+│   ├── CMakeLists.txt
+│   ├── idf_component.yml
+│   └── BridgingHeader.h
+└── Sources/
+    └── main.swift
 ```
 
 ---

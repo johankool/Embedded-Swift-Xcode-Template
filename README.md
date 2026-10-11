@@ -17,6 +17,7 @@ Write ESP32-C6 firmware in Swift — build and flash directly from Xcode, just l
 ✅ **Choose Your Chip** — ESP32-C2, C3, C5, C6, C61, H2 or P4, picked when you create a project  
 ✅ **Xcode Integration** — `Cmd+B` builds and flashes automatically  
 ✅ **Serial Monitor** — `Cmd+R` streams board output to Xcode console  
+✅ **Code Completion** — completion and jump to definition for Swift and ESP-IDF's C APIs  
 ✅ **One-Click Install** — Single `install.sh` sets up everything  
 ✅ **NeoPixel Ready** — WS2812 RGB LED example included  
 
@@ -118,6 +119,12 @@ The Xtensa based chips (the original ESP32, ESP32-S2 and ESP32-S3, found for exa
 
 To switch an existing project to another chip, change `CONFIG_IDF_TARGET` in `sdkconfig.defaults` and build again. The example's LED pin is set per chip in `main/BridgingHeader.h`, for Espressif's DevKit boards.
 
+### Why is there an Indexing target?
+
+Xcode doesn't index the project's main target, because ESP-IDF builds it. The second target, **Indexing**, exists only so Xcode can offer code completion and jump to definition. Every build gives it ESP-IDF's current compiler settings (see `scripts/setup_indexing.sh`), so completion works after the first `Cmd+B`. You never need to build it.
+
+Because Xcode's own toolchain can't compile Embedded Swift, the Indexing target uses the Swift toolchain `install.sh` installed, which `install.sh` writes into the template. Projects keep the toolchain they were created with: after `install.sh` installs a newer Swift version, set **TOOLCHAINS** in the Indexing target's build settings of existing projects to the new toolchain.
+
 ### Why does the first build take so long?
 
 The first build downloads ESP-IDF component dependencies (~minutes). Subsequent builds are incremental and much faster (~35 seconds).
@@ -157,6 +164,7 @@ Embedded-Swift-Xcode-Template/
 │   ├── flash.sh                     # Flashes firmware via idf.py
 │   ├── monitor.sh                   # Streams serial output to stdout
 │   ├── setup_scheme.sh              # Auto-configures Xcode Run scheme
+│   ├── setup_indexing.sh            # Compiler settings for code completion
 │   └── add_library.sh               # Adds ESP-IDF component libraries
 ├── installer/
 │   ├── build_pkg.sh                 # Builds .pkg installer
@@ -169,11 +177,12 @@ Embedded-Swift-Xcode-Template/
 ├── CMakeLists.txt           # Root CMake configuration
 ├── sdkconfig.defaults       # ESP-IDF defaults (watchdog off)
 ├── gitignore                # Installed as .gitignore at the project root
-└── main/
-├── CMakeLists.txt       # Component configuration
-├── idf_component.yml    # ESP-IDF dependencies
-├── BridgingHeader.h     # C ↔ Swift bridge
-└── main.swift           # Firmware entry point
+├── main/
+│   ├── CMakeLists.txt       # Component configuration; compiles all of Sources/
+│   ├── idf_component.yml    # ESP-IDF dependencies
+│   └── BridgingHeader.h     # C ↔ Swift bridge
+└── Sources/
+    └── main.swift           # Firmware entry point (next to the .xcodeproj in new projects)
 ```
 
 ---

@@ -201,6 +201,25 @@ cp -R "$(dirname "$0")/Xcode Template/ESP32 RISC-V.xctemplate/"* "$TARGET_TEMPLA
 # cp -R does not always preserve execute permissions.
 chmod +x "$TARGET_TEMPLATE/build.sh"
 
+# The template's Indexing target (used for code completion) must name the
+# Swift toolchain by its identifier, which includes the build date, so fill
+# it in here. Projects keep the toolchain they were created with.
+# (An alias toolchain with a fixed identifier would avoid that, but any extra
+# toolchain whose usr/ links to another breaks Xcode's code completion.)
+SWIFT_TOOLCHAIN_ID=$(/usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$SWIFT_TOOLCHAIN/Info.plist")
+python3 - "$TARGET_TEMPLATE/TemplateInfo.plist" "$SWIFT_TOOLCHAIN_ID" <<'EOF'
+import plistlib, sys
+path, toolchain_id = sys.argv[1:]
+with open(path, "rb") as f:
+    template = plistlib.load(f)
+for target in template["Targets"]:
+    settings = target.get("SharedSettings", {})
+    if settings.get("TOOLCHAINS") == "ESPSWIFT_SWIFT_TOOLCHAIN_ID":
+        settings["TOOLCHAINS"] = toolchain_id
+with open(path, "wb") as f:
+    plistlib.dump(template, f, sort_keys=True)
+EOF
+
 echo "Xcode Template installed successfully."
 
 # ---- Step 4: Install helper scripts ----

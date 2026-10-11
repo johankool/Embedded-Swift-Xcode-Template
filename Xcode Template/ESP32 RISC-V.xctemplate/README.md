@@ -18,19 +18,34 @@ After the very first `Cmd+B`, close and reopen the project once so that `Cmd+R` 
 ___PROJECTNAME___/
 ├── README.md                 # This file
 ├── ___PROJECTNAME___.xcodeproj
-└── ___PROJECTNAME___/         # The source folder
+├── Sources/                  # Your Swift code
+│   └── main.swift            # Your firmware code starts here
+└── ___PROJECTNAME___/         # The ESP-IDF project (the "source folder")
     ├── build.sh              # Run by Xcode on Cmd+B: builds with ESP-IDF, then flashes
     ├── CMakeLists.txt        # ESP-IDF project file
     ├── sdkconfig.defaults    # The chip and your ESP-IDF settings
     ├── sdkconfig             # Full ESP-IDF settings, created on first build
+    ├── compile_commands.json # Compiler settings for code completion, created by every build
+    ├── .espswift/            # The same for Xcode's Indexing target (hidden)
     └── main/
-        ├── main.swift        # Your firmware code starts here
         ├── BridgingHeader.h  # C headers that Swift can use
         ├── idf_component.yml # Libraries this project depends on
-        └── CMakeLists.txt    # Lists the Swift files to compile
+        └── CMakeLists.txt    # Compiles every .swift file in Sources/
 ```
 
+To add a Swift file, create it in `Sources/` (also in a subfolder), and tick the **Indexing** target in the dialog for the new file so it gets code completion (see below). It's compiled into your firmware on the next `Cmd+B`; there's no list of files to update.
+
 Xcode keeps the build output in DerivedData, like any other Xcode project. **Product ▸ Show Build Folder in Finder** takes you there.
+
+## Code completion
+
+Code completion, jump to definition (Command-click) and inline errors work for your Swift code and for ESP-IDF's C APIs, **after the first `Cmd+B`**: the build provides Xcode with ESP-IDF's compiler settings, and updates them on every build.
+
+This is what the project's second target, **Indexing**, is for. Xcode doesn't index the main target, because ESP-IDF builds it, so it indexes the Indexing target instead. You never need to build it or choose its scheme.
+
+The Indexing target contains the Swift files in `Sources/`. For a file that doesn't get completion, select it and tick **Indexing** under **Target Membership** in the File inspector.
+
+Other editors with Swift support, such as VS Code and Cursor, use `compile_commands.json` in the source folder.
 
 ## Opening Terminal in the source folder
 
