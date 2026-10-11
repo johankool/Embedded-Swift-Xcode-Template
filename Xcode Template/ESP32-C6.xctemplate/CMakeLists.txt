@@ -19,3 +19,31 @@ endif()
 
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 project(___PROJECTNAME___)
+
+# Some components declare C/C++ compiler flags as PUBLIC, so CMake passes
+# them on to everything that links them, including the Swift compiler,
+# which rejects them ("error: unknown argument"). Limit those flags to C,
+# C++ and assembly. Options that are already generator expressions are
+# left alone.
+idf_build_get_property(_components BUILD_COMPONENTS)
+foreach(_component ${_components})
+    idf_component_get_property(_lib ${_component} COMPONENT_LIB)
+    if(NOT TARGET ${_lib})
+        continue()
+    endif()
+    get_target_property(_options ${_lib} INTERFACE_COMPILE_OPTIONS)
+    if(NOT _options)
+        continue()
+    endif()
+    set(_wrapped_options)
+    foreach(_option ${_options})
+        if(NOT _option MATCHES "^\\$<")
+            # A ">" in the flag (e.g. -DHEADER=<path.h>) would end the
+            # generator expression early, so escape it.
+            string(REPLACE ">" "$<ANGLE-R>" _option "${_option}")
+            set(_option "$<$<COMPILE_LANGUAGE:C,CXX,ASM>:${_option}>")
+        endif()
+        list(APPEND _wrapped_options "${_option}")
+    endforeach()
+    set_target_properties(${_lib} PROPERTIES INTERFACE_COMPILE_OPTIONS "${_wrapped_options}")
+endforeach()
