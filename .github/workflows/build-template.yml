@@ -1,0 +1,67 @@
+# Installs ESPSwift with install.sh and builds a project from the Xcode
+# template for every chip the template offers, using tests/test_template.sh.
+#
+# This checks install.sh (on a runner without swiftly, so it installs Swift
+# from swift.org's .pkg) and that the template builds for each chip. It does
+# not check Xcode itself or flashing.
+
+name: Build template
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  chips:
+    name: List chips
+    runs-on: ubuntu-latest
+    outputs:
+      chips: ${{ steps.chips.outputs.chips }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # The chips come from the template's Chip pop-up, so this list
+      # doesn't need updating when chips are added.
+      - id: chips
+        run: |
+          python3 - >> "$GITHUB_OUTPUT" <<'EOF'
+          import json, plistlib
+          plist = plistlib.load(open("Xcode Template/ESP32 RISC-V.xctemplate/TemplateInfo.plist", "rb"))
+          chip = next(o for o in plist["Options"] if o["Identifier"] == "chip")
+          print("chips=" + json.dumps(chip["Values"]))
+          EOF
+
+  build:
+    name: Build (${{ matrix.chip }})
+    needs: chips
+    runs-on: macos-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        chip: ${{ fromJSON(needs.chips.outputs.chips) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install ESPSwift
+        run: bash install.sh
+
+      - name: Build the template for ${{ matrix.chip }}
+        run: bash tests/test_template.sh --work-dir "$RUNNER_TEMP/template-test" ${{ matrix.chip }}
+
+      - name: Upload build log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log-${{ matrix.chip }}
+          path: ${{ runner.temp }}/template-test/*.log
+          if-no-files-found: ignore

@@ -150,6 +150,8 @@ After the first `Cmd+B`, close and reopen the project in Xcode. The serial monit
 Embedded-Swift-Xcode-Template/
 ├── install.sh                        # One-command environment setup
 ├── uninstall.sh                      # Removes what install.sh installed
+├── tests/
+│   └── test_template.sh             # Builds the template for every chip (also run in CI)
 ├── scripts/
 │   ├── detect_port.sh               # Auto-detects the connected board
 │   ├── flash.sh                     # Flashes firmware via idf.py

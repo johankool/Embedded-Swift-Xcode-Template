@@ -121,7 +121,11 @@ if [ "$ACTION" = "clean" ]; then
 else
     echo "Building project..."
     idf.py -B "$BUILD_DIR" build || exit 1
+fi
 
+# Set ESPSWIFT_BUILD_ONLY=1 to only build, without flashing or setting up
+# the Xcode scheme (used by tests/test_template.sh).
+if [ "$ACTION" != "clean" ] && [ "$ESPSWIFT_BUILD_ONLY" != "1" ]; then
     # After a successful build, attempt to flash the firmware to a
     # connected board automatically. This mimics the Arduino IDE
     # workflow where Cmd+B both compiles and uploads in one step.

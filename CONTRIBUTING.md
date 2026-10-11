@@ -35,14 +35,30 @@ git checkout -b feat/your-feature-name
 git checkout -b fix/your-bug-fix
 ```
 
-### 4. Make your changes, then commit
+### 4. Make your changes and test them
+
+If you changed the template, `build.sh` or `install.sh`, build a project from the template for every chip it offers:
+
+```bash
+bash tests/test_template.sh            # all chips
+bash tests/test_template.sh esp32c6    # one chip
+```
+
+It creates each project the way Xcode does and builds it with the ESP-IDF and Swift toolchain `install.sh` installed (run `install.sh` first). Each chip takes about half a minute. GitHub Actions runs the same test for every pull request, after installing everything with `install.sh` on a fresh macOS runner.
+
+The test doesn't cover Xcode or hardware, so for changes there, also check by hand:
+- After running `install.sh` and restarting Xcode, **ESP32 RISC-V** appears under File → New → Project → Other, with the **Chip** pop-up.
+- A new project's `sdkconfig.defaults` has the chip you picked, and `README.md` sits next to the `.xcodeproj`.
+- `Cmd+B` builds and flashes your board, and `Cmd+R` shows its serial output.
+
+### 5. Commit
 
 ```bash
 git add .
 git commit -m "feat: describe what you did"
 ```
 
-### 5. Push and open a Pull Request
+### 6. Push and open a Pull Request
 
 ```bash
 git push origin feat/your-feature-name
@@ -58,6 +74,10 @@ Then open a PR on GitHub against the `main` branch.
 Embedded-Swift-Xcode-Template/
 ├── install.sh                        # Main setup script
 ├── uninstall.sh                      # Removes what install.sh installed
+├── tests/
+│   └── test_template.sh             # Builds the template for every chip
+├── .github/workflows/
+│   └── build-template.yml           # Runs install.sh and the test in CI
 ├── scripts/
 │   ├── detect_port.sh               # Auto-detects the connected board
 │   ├── flash.sh                     # Flashes firmware via idf.py
