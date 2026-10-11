@@ -4,7 +4,7 @@
 # ESPSwift Template installer script.
 
 # This script sets up the complete development environment for
-# Embedded Swift on ESP32-C6, including ESP-IDF and the Embedded
+# Embedded Swift on RISC-V based ESP32 chips, including ESP-IDF and the Embedded
 # Swift toolchain. All tools are installed under ~/.espswift. to
 # ensure a predictable, isolated path that the Xcode build scripts
 # can always rely on.
@@ -110,11 +110,13 @@ else
     git clone --recursive --branch "$IDF_VERSION" --depth 1 --shallow-submodules \
         https://github.com/espressif/esp-idf.git "$IDF_PATH"
     
-    # Install only the ESP32-C6 target to minimize download size.
+    # Install the tools for the RISC-V chips the template supports only
+    # (Embedded Swift doesn't support the Xtensa chips), which keeps the
+    # download small. They all share the same RISC-V compiler.
     # Passing IDF_TOOLS_PATH redirects all binaries to ~/.espswift/tools/
     # instead of the default ~/.espressif/.
     # export IDF_TOOLS_PATH="$IDF_TOOLS_PATH"
-    "$IDF_PATH/install.sh" esp32c6
+    "$IDF_PATH/install.sh" esp32c2,esp32c3,esp32c5,esp32c6,esp32c61,esp32h2,esp32p4
 
     echo "ESP-IDF installed successfully."
 fi
@@ -170,12 +172,16 @@ echo "[3/4] Installing Xcode template..."
 # The directory where Xcode looks for custom project templates.
 XCODE_TEMPLATES_DIR="$HOME/Library/Developer/Xcode/Templates/Project Templates/Other"
 XCODE_BUILTIN_TEMPLATE="/Applications/Xcode.app/Contents/Developer/Library/Xcode/Templates/Project Templates/Other/External Build System.xctemplate"
-TARGET_TEMPLATE="$XCODE_TEMPLATES_DIR/ESP32-C6.xctemplate"
+TARGET_TEMPLATE="$XCODE_TEMPLATES_DIR/ESP32 RISC-V.xctemplate"
 
 # Create the directory if it does not exist.
 # This is common on fresh macOS installations where Xcode Templates
 # have never been customized before.
 mkdir -p "$XCODE_TEMPLATES_DIR"
+
+# The template used to be called ESP32-C6 and supported only that chip.
+# Remove it, so Xcode doesn't offer both.
+rm -rf "$XCODE_TEMPLATES_DIR/ESP32-C6.xctemplate"
 
 # Start from Xcode's built-in External Build System template,
 # which already has the correct Targets, Options, and Image keys.
@@ -189,7 +195,7 @@ cp -R "$XCODE_BUILTIN_TEMPLATE/." "$TARGET_TEMPLATE"
 # -R copies the directory recursively.
 # Existing files will be overwritten, so re-running install.sh
 # always gives the user the latest version of the template.
-cp -R "$(dirname "$0")/Xcode Template/ESP32-C6.xctemplate/"* "$TARGET_TEMPLATE/"
+cp -R "$(dirname "$0")/Xcode Template/ESP32 RISC-V.xctemplate/"* "$TARGET_TEMPLATE/"
 
 # Grant execute permission to build.sh so Xcode can run it.
 # cp -R does not always preserve execute permissions.
@@ -203,7 +209,7 @@ echo "[4/4] Installing helper scripts..."
 
 # Copy all helper scripts (detect_port.sh, flash.sh, monitor.sh, setup_scheme.sh) into ~/.espswift/scripts/
 # so that the Xcode build script (build.sh) can call them via a known path.
-# These scripts are responsible for finding the connected ESP32-C6,
+# These scripts are responsible for finding the connected board,
 # flashing the compiled binary to it, and reading the serial output.
 mkdir -p "$ESPSWIFT_HOME/scripts"
 cp "$(dirname "$0")/scripts/"*.sh "$ESPSWIFT_HOME/scripts/"
@@ -223,4 +229,4 @@ echo "Helper scripts installed successfully."
 
 echo ""
 echo "Installation complete."
-echo "Restart Xcode and create a new project to use the ESP32-C6 Embedded Swift template."
+echo "Restart Xcode and create a new project to use the ESP32 RISC-V Embedded Swift template."

@@ -1,6 +1,6 @@
 #!/bin/bash
 # monitor.sh
-# Opens a serial monitor for the connected ESP32-C6.
+# Opens a serial monitor for the connected ESP32 board.
 #
 # Reads serial output from the board and streams it to stdout.
 # Designed to be invoked as the Xcode Scheme's Run Executable,
@@ -21,18 +21,18 @@ if [ ! -x "$IDF_PYTHON" ]; then
     exit 1
 fi
 
-# Detect the connected ESP32-C6 port.
+# Detect the connected board's port.
 DETECT_PORT="$(dirname "$0")/detect_port.sh"
 PORT=$(bash "$DETECT_PORT")
 
 if [ $? -ne 0 ]; then
-    echo "Error: No ESP32-C6 device found." >&2
+    echo "Error: No ESP32 board found." >&2
     echo "Make sure the device is connected via USB." >&2
     exit 1
 fi
 
 echo "================================================="
-echo " ESP32-C6 Serial Monitor"
+echo " ESP32 Serial Monitor"
 echo " Port: $PORT @ 115200 baud"
 echo "================================================="
 

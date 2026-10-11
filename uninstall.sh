@@ -5,7 +5,7 @@
 #
 # Always removed (used only by ESPSwift):
 #   ~/.espswift             ESP-IDF, helper scripts, toolchain record
-#   Xcode template          ESP32-C6
+#   Xcode template          ESP32 RISC-V (and ESP32-C6, its old name)
 #
 # Removed only when confirmed, or with --all, because other projects
 # may use them too:
@@ -42,7 +42,9 @@ done
 # ---- Paths ----
 
 ESPSWIFT_HOME="$HOME/.espswift"
-XCODE_TEMPLATE="$HOME/Library/Developer/Xcode/Templates/Project Templates/Other/ESP32-C6.xctemplate"
+XCODE_TEMPLATES_DIR="$HOME/Library/Developer/Xcode/Templates/Project Templates/Other"
+# The template was called ESP32-C6 before it supported other chips.
+TEMPLATES=("ESP32 RISC-V.xctemplate" "ESP32-C6.xctemplate")
 ESPRESSIF_TOOLS="$HOME/.espressif"
 COMPONENT_CACHE="$HOME/Library/Caches/Espressif/ComponentManager"
 
@@ -85,10 +87,12 @@ if [ -d "$ESPSWIFT_HOME" ]; then
     FOUND_ANYTHING=true
 fi
 
-if [ -d "$XCODE_TEMPLATE" ]; then
-    echo "  Xcode template: ESP32-C6"
-    FOUND_ANYTHING=true
-fi
+for TEMPLATE in "${TEMPLATES[@]}"; do
+    if [ -d "$XCODE_TEMPLATES_DIR/$TEMPLATE" ]; then
+        echo "  Xcode template: ${TEMPLATE%.xctemplate}"
+        FOUND_ANYTHING=true
+    fi
+done
 
 if [ "$FOUND_ANYTHING" = false ]; then
     echo "  Nothing found: ESPSwift doesn't seem to be installed."
@@ -114,10 +118,12 @@ if [ -d "$ESPSWIFT_HOME" ]; then
     echo "Removed $ESPSWIFT_HOME"
 fi
 
-if [ -d "$XCODE_TEMPLATE" ]; then
-    rm -rf "$XCODE_TEMPLATE"
-    echo "Removed Xcode template ESP32-C6"
-fi
+for TEMPLATE in "${TEMPLATES[@]}"; do
+    if [ -d "$XCODE_TEMPLATES_DIR/$TEMPLATE" ]; then
+        rm -rf "$XCODE_TEMPLATES_DIR/$TEMPLATE"
+        echo "Removed Xcode template ${TEMPLATE%.xctemplate}"
+    fi
+done
 
 # ---- Shared items ----
 

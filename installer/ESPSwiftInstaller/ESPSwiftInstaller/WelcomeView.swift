@@ -41,11 +41,11 @@ struct WelcomeView: View {
                     .font(.system(size: 52))
                     .foregroundColor(.accentColor)
                 
-                Text("Embedded Swift for ESP32-C6")
+                Text("Embedded Swift for ESP32")
                     .font(.title2)
                     .fontWeight(.semibold)
                 
-                Text("This installer will set up everything you need to write ESP32-C6 firmware in Swift using Xcode.")
+                Text("This installer will set up everything you need to write ESP32 firmware in Swift using Xcode.")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)

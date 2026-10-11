@@ -1,6 +1,6 @@
 # Contributing to Embedded Swift Xcode Template
 
-Thank you for your interest in contributing! This project aims to make Embedded Swift development on ESP32-C6 as approachable as possible — contributions of all kinds are welcome.
+Thank you for your interest in contributing! This project aims to make Embedded Swift development on ESP32 as approachable as possible — contributions of all kinds are welcome.
 
 ## Ways to Contribute
 
@@ -54,11 +54,12 @@ Then open a PR on GitHub against the `main` branch.
 
 ## Project Structure
 
+```
 Embedded-Swift-Xcode-Template/
 ├── install.sh                        # Main setup script
 ├── uninstall.sh                      # Removes what install.sh installed
 ├── scripts/
-│   ├── detect_port.sh               # Auto-detects connected ESP32-C6
+│   ├── detect_port.sh               # Auto-detects the connected board
 │   ├── flash.sh                     # Flashes firmware via idf.py
 │   ├── monitor.sh                   # Streams serial output
 │   ├── monitor_wrapper.c            # Native binary wrapper for Xcode
@@ -70,7 +71,7 @@ Embedded-Swift-Xcode-Template/
 │   ├── scripts/postinstall          # .pkg post-install script
 │   └── ESPSwiftInstaller/           # SwiftUI installer app
 └── Xcode Template/
-└── ESP32-C6.xctemplate/
+└── ESP32 RISC-V.xctemplate/
 ├── TemplateInfo.plist
 ├── README.md
 ├── build.sh
@@ -81,6 +82,7 @@ Embedded-Swift-Xcode-Template/
 ├── idf_component.yml
 ├── BridgingHeader.h
 └── main.swift
+```
 
 ---
 
@@ -116,7 +118,7 @@ When opening a bug report, please include:
 
 - macOS version
 - Xcode version
-- ESP32-C6 board model
+- Board model and chip (e.g. ESP32-C6-DevKitC-1)
 - USB interface (native USB-CDC / CH340 / CP210x)
 - Steps to reproduce
 - Expected vs actual behavior
@@ -127,7 +129,7 @@ When opening a bug report, please include:
 ## Hardware Requirements for Testing
 
 To fully test this project you need:
-- An ESP32-C6 development board
+- A development board with a RISC-V based ESP32 chip, such as the ESP32-C6
 - USB cable (USB-C or Micro-USB depending on board)
 - macOS 12+ with Xcode 15+
 

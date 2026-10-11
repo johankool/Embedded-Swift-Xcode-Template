@@ -1,6 +1,6 @@
 # ___PROJECTNAME___
 
-Embedded Swift firmware for the ESP32-C6, built with ESP-IDF.
+Embedded Swift firmware for an ESP32 (`___VARIABLE_chip___`), built with ESP-IDF.
 
 ## Everyday use in Xcode
 
@@ -21,7 +21,7 @@ ___PROJECTNAME___/
 └── ___PROJECTNAME___/         # The source folder
     ├── build.sh              # Run by Xcode on Cmd+B: builds with ESP-IDF, then flashes
     ├── CMakeLists.txt        # ESP-IDF project file
-    ├── sdkconfig.defaults    # Your ESP-IDF settings (see "Changing ESP-IDF settings")
+    ├── sdkconfig.defaults    # The chip and your ESP-IDF settings
     ├── sdkconfig             # Full ESP-IDF settings, created on first build
     └── main/
         ├── main.swift        # Your firmware code starts here
@@ -66,6 +66,18 @@ idf.py menuconfig
 Use the arrow keys and Return to navigate, and press `S` to save and `Q` to quit. Then press `Cmd+B` in Xcode.
 
 To keep a setting even if `sdkconfig` is deleted, also add it to `sdkconfig.defaults`.
+
+## Changing the chip
+
+The chip you chose when creating the project is set in `sdkconfig.defaults`:
+
+```
+CONFIG_IDF_TARGET="___VARIABLE_chip___"
+```
+
+To build for another RISC-V based ESP32 (`esp32c2`, `esp32c3`, `esp32c5`, `esp32c6`, `esp32c61`, `esp32h2` or `esp32p4`), change this line and press `Cmd+B`. The build then reconfigures the project for the new chip, which recreates `sdkconfig` from `sdkconfig.defaults` (the previous one is kept as `sdkconfig.old`).
+
+The example blinks the RGB LED of Espressif's DevKit boards. Its pin is chosen per chip in `main/BridgingHeader.h` (`BOARD_RGB_LED_GPIO`); change it there if your board's LED is on another pin.
 
 ## Watching serial output in Terminal
 

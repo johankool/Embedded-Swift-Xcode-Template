@@ -6,7 +6,7 @@
 # toolchain and ESP-IDF are not directly integrated with Xcode's build system.
 
 echo "================================================="
-echo " ESP32-C6 Embedded Swift Build"
+echo " ESP32 Embedded Swift Build"
 echo "================================================="
 
 # Xcode provides PROJECT_DIR and PROJECT_NAME.
@@ -95,11 +95,20 @@ echo "Build directory: $BUILD_DIR"
 
 # ── Target Setup ─────────────────────────────────────────────────
 
-# Set the target to esp32c6 on first build (creates sdkconfig).
+# The chip is set by CONFIG_IDF_TARGET in sdkconfig.defaults. ESP-IDF
+# records the chip it configured the project for in sdkconfig, so set the
+# target on the first build (which creates sdkconfig) and again whenever
+# the chip in sdkconfig.defaults has changed. Setting the target recreates
+# sdkconfig from sdkconfig.defaults; the previous one is kept as
+# sdkconfig.old.
 # Every idf.py call exits on failure so Xcode reports the build as failed.
-if [ ! -f "sdkconfig" ]; then
-    echo "Setting target to esp32c6..."
-    idf.py -B "$BUILD_DIR" set-target esp32c6 || exit 1
+CHIP=$(sed -n 's/^CONFIG_IDF_TARGET="\(.*\)"$/\1/p' sdkconfig.defaults 2>/dev/null)
+CHIP=${CHIP:-esp32c6}
+CONFIGURED_CHIP=$(sed -n 's/^CONFIG_IDF_TARGET="\(.*\)"$/\1/p' sdkconfig 2>/dev/null)
+
+if [ "$CONFIGURED_CHIP" != "$CHIP" ]; then
+    echo "Setting target to $CHIP..."
+    idf.py -B "$BUILD_DIR" set-target "$CHIP" || exit 1
 fi
 
 # ── Action ───────────────────────────────────────────────────────
@@ -114,7 +123,7 @@ else
     idf.py -B "$BUILD_DIR" build || exit 1
 
     # After a successful build, attempt to flash the firmware to a
-    # connected ESP32-C6 automatically. This mimics the Arduino IDE
+    # connected board automatically. This mimics the Arduino IDE
     # workflow where Cmd+B both compiles and uploads in one step.
     #
     # If no board is connected, flash.sh will exit with a non-zero
@@ -124,7 +133,7 @@ else
     if [ -x "$FLASH_SCRIPT" ]; then
         echo ""
         echo "================================================="
-        echo " Auto-Flashing to ESP32-C6"
+        echo " Auto-Flashing to ESP32"
         echo "================================================="
         "$FLASH_SCRIPT" "$PWD" "$BUILD_DIR" || \
             echo "Warning: Flash failed or no device connected."

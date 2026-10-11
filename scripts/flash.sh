@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # flash.sh
-# Flashes a built ESP32-C6 project to a connected device.
+# Flashes a built ESP32 project to a connected board.
 #
 # This script is typically called from the Xcode Run Script Phase after
 # a successful build, but it can also be run manually from the terminal.
@@ -81,7 +81,7 @@ source "$IDF_PATH/export.sh"
 # location-independent — it works regardless of where the user runs it.
 DETECT_PORT="$(dirname "$0")/detect_port.sh"
 
-echo "Detecting ESP32-C6..."
+echo "Detecting ESP32 board..."
 
 # Run the port detection script and capture its stdout into PORT.
 # detect_port.sh prints the device path (e.g. /dev/cu.usbmodem...) on
@@ -91,7 +91,7 @@ PORT=$(bash "$DETECT_PORT")
 # $? holds the exit code of the most recent command. A non-zero exit
 # code from detect_port.sh means no device was found.
 if [ $? -ne 0 ]; then
-    echo "Error: Could not detect ESP32-C6. Is it connected via USB?" >&2
+    echo "Error: Could not detect an ESP32 board. Is it connected via USB?" >&2
     exit 1
 fi
 

@@ -13,7 +13,8 @@ Write ESP32-C6 firmware in Swift — build and flash directly from Xcode, just l
 
 ## Features
 
-✅ **Native Swift on Microcontrollers** — Write ESP32-C6 firmware in Swift, not C/C++  
+✅ **Native Swift on Microcontrollers** — Write ESP32 firmware in Swift, not C/C++  
+✅ **Choose Your Chip** — ESP32-C2, C3, C5, C6, C61, H2 or P4, picked when you create a project  
 ✅ **Xcode Integration** — `Cmd+B` builds and flashes automatically  
 ✅ **Serial Monitor** — `Cmd+R` streams board output to Xcode console  
 ✅ **One-Click Install** — Single `install.sh` sets up everything  
@@ -43,8 +44,8 @@ Installation takes 5–10 minutes (~3GB download).
 
 ### Create a Project
 1. Restart Xcode
-2. File → New → Project → Other → **ESP32-C6**
-3. Connect your ESP32-C6 board via USB
+2. File → New → Project → Other → **ESP32 RISC-V**, and choose your board's chip in the **Chip** pop-up
+3. Connect your board via USB
 4. Press `Cmd+B` — builds and flashes automatically
 5. Press `Cmd+R` — opens serial monitor in Xcode console
 
@@ -54,13 +55,15 @@ Installation takes 5–10 minutes (~3GB download).
 
 After the first build, pressing `Cmd+R` streams live serial output from the board directly into Xcode's debug console — no external tools needed.
 
+```
 =================================================
-ESP32-C6 Serial Monitor
+ESP32 Serial Monitor
 Port: /dev/cu.usbmodem... @ 115200 baud
-Hello from Embedded Swift on ESP32-C6!
+Hello from Embedded Swift on ESP32!
 LED: Red
 LED: Green
 LED: Blue
+```
 
 > **Note:** Xcode's console is output-only. For interactive serial input, use an external tool like `screen /dev/cu.usbmodem... 115200`.
 
@@ -87,7 +90,7 @@ Available libraries: [ESP-IDF Component Registry](https://components.espressif.c
 ```swift
 @_cdecl("app_main")
 public func app_main() {
-    print("Hello from Embedded Swift on ESP32-C6!")
+    print("Hello from Embedded Swift on ESP32!")
 
     while true {
         vTaskDelay(pd_ms_to_ticks(1000))
@@ -102,10 +105,18 @@ public func app_main() {
 
 ### Why is the Xcode destination set to "My Mac"?
 
-This is expected. Xcode runs a macOS helper tool on your Mac, which builds and flashes firmware to the connected ESP32-C6 board over USB. The destination refers to where the helper runs, not where the firmware is deployed.
+This is expected. Xcode runs a macOS helper tool on your Mac, which builds and flashes firmware to the connected ESP32 board over USB. The destination refers to where the helper runs, not where the firmware is deployed.
 
 - **Xcode Destination**: My Mac (the helper runs here)
-- **Actual Flash Target**: ESP32-C6 (connected via USB)
+- **Actual Flash Target**: your ESP32 board (connected via USB)
+
+### Which chips are supported?
+
+The RISC-V based ESP32 chips: ESP32-C2, C3, C5, C6, C61, H2 and P4. Choose one in the **Chip** pop-up when you create a project. The template is tested on hardware with the ESP32-C6; the other chips are tested by building only.
+
+The Xtensa based chips (the original ESP32, ESP32-S2 and ESP32-S3, found for example on ESP32 DevKitV1 boards) are not supported: Swift doesn't support Xtensa.
+
+To switch an existing project to another chip, change `CONFIG_IDF_TARGET` in `sdkconfig.defaults` and build again. The example's LED pin is set per chip in `main/BridgingHeader.h`, for Espressif's DevKit boards.
 
 ### Why does the first build take so long?
 
@@ -135,11 +146,12 @@ After the first `Cmd+B`, close and reopen the project in Xcode. The serial monit
 
 ## Architecture
 
+```
 Embedded-Swift-Xcode-Template/
 ├── install.sh                        # One-command environment setup
 ├── uninstall.sh                      # Removes what install.sh installed
 ├── scripts/
-│   ├── detect_port.sh               # Auto-detects connected ESP32-C6
+│   ├── detect_port.sh               # Auto-detects the connected board
 │   ├── flash.sh                     # Flashes firmware via idf.py
 │   ├── monitor.sh                   # Streams serial output to stdout
 │   ├── setup_scheme.sh              # Auto-configures Xcode Run scheme
@@ -148,7 +160,7 @@ Embedded-Swift-Xcode-Template/
 │   ├── build_pkg.sh                 # Builds .pkg installer
 │   └── ESPSwiftInstaller/           # SwiftUI installer app
 └── Xcode Template/
-└── ESP32-C6.xctemplate/
+└── ESP32 RISC-V.xctemplate/
 ├── TemplateInfo.plist       # Xcode template configuration
 ├── README.md                # Getting-started guide for the new project
 ├── build.sh                 # ESP-IDF build + flash wrapper
@@ -160,6 +172,7 @@ Embedded-Swift-Xcode-Template/
 ├── idf_component.yml    # ESP-IDF dependencies
 ├── BridgingHeader.h     # C ↔ Swift bridge
 └── main.swift           # Firmware entry point
+```
 
 ---
 
@@ -168,7 +181,7 @@ Embedded-Swift-Xcode-Template/
 - macOS 12+
 - Xcode 15+
 - Python 3.10+, CMake and Ninja; `install.sh` installs any that are missing with [Homebrew](https://brew.sh)
-- ESP32-C6 board with USB connection
+- A board with a RISC-V based ESP32 chip (ESP32-C2, C3, C5, C6, C61, H2 or P4) and a USB connection
 - ~3GB disk space
 
 ---
@@ -184,7 +197,7 @@ Running `install.sh` or `ESPSwiftInstaller.app` installs the following into your
 | `~/.espressif/` | ESP-IDF Python tools and toolchains (~500 MB) |
 | `~/Library/Developer/Toolchains/` | Swift 6.4.0 release toolchain, installed with [swiftly](https://www.swift.org/install/macos/) if you have it, otherwise from swift.org's installer |
 | `~/.espswift/swift-toolchain` | Path of the Swift toolchain that projects use |
-| `~/Library/Developer/Xcode/Templates/` | ESP32-C6 Xcode template |
+| `~/Library/Developer/Xcode/Templates/` | ESP32 RISC-V Xcode template |
 
 Nothing is installed to system directories. Everything is scoped to your user home directory.
 
@@ -230,7 +243,7 @@ This project is being developed as part of the [Swift Mentorship Program](https:
 **Longer-term**
 - [ ] `espswift` CLI (doctor / build / flash / monitor)
 - [ ] `espswift-idf` Swift Package (idiomatic Swift wrappers for ESP-IDF APIs)
-- [ ] ESP32-C3 and ESP32-S3 support
+- [x] ESP32-C3 and ESP32-S3 support
 - [ ] Homebrew tap
 
 ---

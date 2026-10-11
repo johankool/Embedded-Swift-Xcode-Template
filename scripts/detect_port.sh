@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # detect_port.sh
-# Detects the serial port of a connected ESP32-C6 device.
+# Detects the serial port of a connected ESP32 board.
 #
-# ESP32-C6 boards appear on macOS under /dev/cu.* with names that depend
+# ESP32 boards appear on macOS under /dev/cu.* with names that depend
 # on the board's USB interface:
 #
 # 1. Native USB-CDC (Espressif): /dev/cu.usbmodem*
-#    The ESP32-C6 chip itself acts as a USB device.
+#    The chip's own USB peripheral acts as the USB device.
 # 2. USB-Serial Bridge (WCH CH340): /dev/cu.wchusbserial*
 #    Common on third-party boards with a CH340 USB-to-UART chip.
 # 3. USB-Serial Bridge (Silicon Labs CP210x): /dev/cu.SLAB_USBtoUART
@@ -31,6 +31,6 @@ for pattern in /dev/cu.usbmodem* /dev/cu.wchusbserial* /dev/cu.SLAB_USBtoUART* /
     done
 done
 
-echo "Error: No ESP32-C6 device found." >&2
+echo "Error: No ESP32 board found." >&2
 echo "Make sure the device is connected via USB." >&2
 exit 1
