@@ -145,7 +145,10 @@ mkdir -p "$XCODE_TEMPLATES_DIR"
 # Start from Xcode's built-in External Build System template,
 # which already has the correct Targets, Options, and Image keys.
 # We'll then overlay our customizations on top.
-cp -R "$XCODE_BUILTIN_TEMPLATE" "$TARGET_TEMPLATE"
+# Copy the template's contents ("/.") rather than the folder itself: when
+# the template is already installed, copying the folder would nest it
+# inside the existing one instead of updating it.
+cp -R "$XCODE_BUILTIN_TEMPLATE/." "$TARGET_TEMPLATE"
 
 # Overlay our custom files (main.swift) and overwrite TemplateInfo.plist.
 # -R copies the directory recursively.
