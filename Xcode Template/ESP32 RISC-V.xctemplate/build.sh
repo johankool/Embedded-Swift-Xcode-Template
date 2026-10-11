@@ -107,6 +107,16 @@ CHIP=${CHIP:-esp32c6}
 CONFIGURED_CHIP=$(sed -n 's/^CONFIG_IDF_TARGET="\(.*\)"$/\1/p' sdkconfig 2>/dev/null)
 
 if [ "$CONFIGURED_CHIP" != "$CHIP" ]; then
+    # Setting the target first cleans the build directory, which idf.py
+    # refuses to do if it isn't a CMake build directory. A build that
+    # failed before CMake configured the project leaves such a directory
+    # behind, holding only idf.py's logs; remove it, so the build doesn't
+    # stay stuck. Anything else in it is left to idf.py.
+    if [ -d "$BUILD_DIR" ] && [ ! -f "$BUILD_DIR/CMakeCache.txt" ] \
+        && [ -z "$(ls -A "$BUILD_DIR" | grep -v '^log$')" ]; then
+        echo "Removing an unconfigured build directory left by a failed build..."
+        rm -rf "$BUILD_DIR"
+    fi
     echo "Setting target to $CHIP..."
     idf.py -B "$BUILD_DIR" set-target "$CHIP" || exit 1
 fi
