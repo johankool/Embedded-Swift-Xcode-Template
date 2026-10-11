@@ -32,6 +32,14 @@ IDF_PATH="$ESPSWIFT_HOME/esp-idf"
 # Releases: https://github.com/espressif/esp-idf/releases
 IDF_VERSION="v6.1"
 
+# The Swift release to install. Embedded Swift for RISC-V ships with the
+# swift.org release toolchains, so a development snapshot is not needed.
+# (Xcode's own toolchain cannot be used: it does not include the Embedded
+# Swift standard library.)
+# Releases: https://www.swift.org/install/macos/
+SWIFT_VERSION="6.4.0"
+SWIFT_TOOLCHAIN="$HOME/Library/Developer/Toolchains/swift-$SWIFT_VERSION-RELEASE.xctoolchain"
+
 # ESP-IDF's own tool installer (xtensa toolchain, openocd, etc.)
 # will place binaries here instead of the default ~/.espressif/.
 # IDF_TOOLS_PATH="$ESPSWIFT_HOME/tools"
@@ -42,6 +50,39 @@ echo "Starting ESPSwift installation..."
 
 # Create the root directory if it does not exist.
 mkdir -p "$ESPSWIFT_HOME"
+
+# ---- Prerequisites ----
+
+# Check for the tools ESP-IDF needs before downloading anything, so a
+# missing tool is reported up front instead of after a large download.
+#   - Python 3.10 or newer (macOS's built-in python3 is 3.9)
+#   - CMake and Ninja (ESP-IDF expects them from Homebrew on macOS)
+# Homebrew is added to PATH explicitly, for Apple silicon and Intel Macs.
+export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+
+MISSING_FORMULAE=()
+if ! python3 -c 'import sys; sys.exit(sys.version_info < (3, 10))' &>/dev/null; then
+    MISSING_FORMULAE+=(python)
+fi
+if ! command -v cmake &>/dev/null; then
+    MISSING_FORMULAE+=(cmake)
+fi
+if ! command -v ninja &>/dev/null; then
+    MISSING_FORMULAE+=(ninja)
+fi
+
+if [ ${#MISSING_FORMULAE[@]} -gt 0 ]; then
+    if command -v brew &>/dev/null; then
+        echo "Installing ${MISSING_FORMULAE[*]} via Homebrew..."
+        brew install "${MISSING_FORMULAE[@]}"
+    else
+        echo "Error: ESP-IDF needs Python 3.10 or newer, CMake and Ninja." >&2
+        echo "Missing: ${MISSING_FORMULAE[*]}" >&2
+        echo "Install Homebrew from https://brew.sh and run this script again," >&2
+        echo "or install the missing tools yourself and make sure they are on PATH." >&2
+        exit 1
+    fi
+fi
 
 # ---- Step 1 : ESP-IDF ----
 
@@ -78,55 +119,49 @@ else
     echo "ESP-IDF installed successfully."
 fi
 
-# idf.py requires CMake and Ninja on PATH. On macOS, ESP-IDF expects
-# them to be installed via Homebrew rather than by its own installer.
-export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
 
-if ! command -v cmake &>/dev/null || ! command -v ninja &>/dev/null; then
-    echo "Installing CMake and Ninja via Homebrew..."
-    brew install cmake ninja
+# ---- Step 2: Embedded Swift Toolchain ----
+
+echo "[2/4] Installing Swift $SWIFT_VERSION toolchain..."
+
+if [ -x "$SWIFT_TOOLCHAIN/usr/bin/swiftc" ]; then
+    echo "Swift $SWIFT_VERSION already installed. Skipping."
+else
+    # Use swiftly, the Swift toolchain manager, if the user has it (installed
+    # by swift.org's installer in ~/.swiftly, or via Homebrew), so the
+    # toolchain shows up in `swiftly list` alongside their others.
+    # Without --use, swiftly installs the toolchain without changing which
+    # toolchain is active.
+    SWIFTLY_BIN=$(command -v swiftly || true)
+    if [ -z "$SWIFTLY_BIN" ] && [ -x "$HOME/.swiftly/bin/swiftly" ]; then
+        SWIFTLY_BIN="$HOME/.swiftly/bin/swiftly"
+    fi
+
+    if [ -n "$SWIFTLY_BIN" ]; then
+        echo "Installing with swiftly ($SWIFTLY_BIN)..."
+        "$SWIFTLY_BIN" install "$SWIFT_VERSION" --assume-yes
+    else
+        # Otherwise download swift.org's toolchain installer and install it
+        # into ~/Library/Developer/Toolchains, which needs no sudo.
+        echo "Downloading Swift $SWIFT_VERSION from swift.org..."
+        SWIFT_PKG_DIR=$(mktemp -d)
+        SWIFT_PKG="$SWIFT_PKG_DIR/swift-$SWIFT_VERSION-RELEASE-osx.pkg"
+        curl -fL "https://download.swift.org/swift-$SWIFT_VERSION-release/xcode/swift-$SWIFT_VERSION-RELEASE/swift-$SWIFT_VERSION-RELEASE-osx.pkg" -o "$SWIFT_PKG"
+        installer -pkg "$SWIFT_PKG" -target CurrentUserHomeDirectory
+        rm -rf "$SWIFT_PKG_DIR"
+    fi
+
+    if [ ! -x "$SWIFT_TOOLCHAIN/usr/bin/swiftc" ]; then
+        echo "Error: Swift $SWIFT_VERSION was not installed at $SWIFT_TOOLCHAIN" >&2
+        exit 1
+    fi
+
+    echo "Swift $SWIFT_VERSION installed successfully."
 fi
 
-
-# ---- Step 2: Embedded Swift Toolchain (via swiftly) ----
-
-echo "[2/4] Installing Embedded Swift toolchain..."
-
-# swiftly is the official Swift toolchain installer and manager.
-# We use it instead of manually downloading snapshot tarballs,
-# so that toolchain updates are handled cleanly in the future.
-SWIFTLY_BIN="$HOME/.swiftly/bin/swiftly"
-
-if ! command -v "$SWIFTLY_BIN" &>/dev/null; then
-    echo "swiftly not found. Installing swiftly..."
-
-    # Download the official swiftly pkg installer from swift.org.
-    curl -L https://download.swift.org/swiftly/darwin/swiftly.pkg -o /tmp/swiftly.pkg
-
-    # Install swiftly into the current user's home directory.
-    # -target CurrentUserHomeDirectory installs to ~/swiftly/
-    # without requiring sudo.
-    installer -pkg /tmp/swiftly.pkg -target CurrentUserHomeDirectory
-
-    # Clean up the downloaded pkg.
-    rm /tmp/swiftly.pkg
-
-    echo "swiftly installed successfully."
-fi
-
-# Initialize swiftly without installing the latest release toolchain.
-# --skip-install avoids downloading the stable release toolchain,
-# since Embedded Swift requires a development snapshot, not a release.
-# --no-modify-profile prevents swiftly from editing ~/.zshrc or ~/.bashrc,
-# as we manage PATH ourselevs in this script.
-"$SWIFTLY_BIN" init --skip-install --no-modify-profile --assume-yes
-
-# Install the latest main development snapshot.
-# Embedded Swift is not yet available in stable releases,
-# so we must use a main-snapshot toolchain (Swift 6.2 dev or later).
-"$SWIFTLY_BIN" install main-snapshot
-
-echo "Embedded Swift toolchain installed successfully."
+# Record which toolchain to use. build.sh and the project's CMakeLists.txt
+# read this file, so projects follow the toolchain install.sh installed.
+echo "$SWIFT_TOOLCHAIN" > "$ESPSWIFT_HOME/swift-toolchain"
 
 # ---- Step 3: Install Xcode Template ----
 

@@ -43,17 +43,23 @@ source "$IDF_PATH/export.sh"
 
 # ── Embedded Swift Toolchain ─────────────────────────────────────
 
-# Use the newest installed development snapshot (install.sh installs
-# main-snapshot, whose dated name changes with every snapshot).
-# Set ESPSWIFT_TOOLCHAIN to a .xctoolchain path to pin a specific one.
-# swift-latest.xctoolchain is not used, because it points at whichever
-# toolchain was installed last, which may be a release toolchain.
+# Use the Swift toolchain install.sh installed, which it records in
+# ~/.espswift/swift-toolchain. Set ESPSWIFT_TOOLCHAIN to a .xctoolchain
+# path to use a different one. Xcode's own toolchain cannot be used: it
+# does not include the Embedded Swift standard library.
+if [ -z "$ESPSWIFT_TOOLCHAIN" ] && [ -f "$HOME/.espswift/swift-toolchain" ]; then
+    ESPSWIFT_TOOLCHAIN=$(cat "$HOME/.espswift/swift-toolchain")
+fi
+
+# Older installs used a development snapshot and did not record it, so
+# fall back to the newest installed snapshot. swift-latest.xctoolchain is
+# not used, because it points at whichever toolchain was installed last.
 if [ -z "$ESPSWIFT_TOOLCHAIN" ]; then
     ESPSWIFT_TOOLCHAIN=$(ls -d "$HOME/Library/Developer/Toolchains/swift-DEVELOPMENT-SNAPSHOT-"*.xctoolchain 2>/dev/null | sort | tail -1)
 fi
 
 if [ ! -x "$ESPSWIFT_TOOLCHAIN/usr/bin/swiftc" ]; then
-    echo "Error: Embedded Swift development snapshot toolchain not found in ~/Library/Developer/Toolchains." >&2
+    echo "Error: Swift toolchain not found${ESPSWIFT_TOOLCHAIN:+ at $ESPSWIFT_TOOLCHAIN}." >&2
     echo "Please run install.sh first." >&2
     exit 1
 fi

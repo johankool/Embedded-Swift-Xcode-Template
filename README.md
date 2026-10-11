@@ -166,6 +166,7 @@ Embedded-Swift-Xcode-Template/
 
 - macOS 12+
 - Xcode 15+
+- Python 3.10+, CMake and Ninja; `install.sh` installs any that are missing with [Homebrew](https://brew.sh)
 - ESP32-C6 board with USB connection
 - ~3GB disk space
 
@@ -180,8 +181,8 @@ Running `install.sh` or `ESPSwiftInstaller.app` installs the following into your
 | `~/.espswift/esp-idf/` | ESP-IDF 6.1 (~750 MB) |
 | `~/.espswift/scripts/` | Helper scripts (flash, monitor, etc.) |
 | `~/.espressif/` | ESP-IDF Python tools and toolchains (~500 MB) |
-| `~/.swiftly/` | swiftly toolchain manager |
-| `~/Library/Developer/Toolchains/` | Embedded Swift snapshot toolchain |
+| `~/Library/Developer/Toolchains/` | Swift 6.4.0 release toolchain, installed with [swiftly](https://www.swift.org/install/macos/) if you have it, otherwise from swift.org's installer |
+| `~/.espswift/swift-toolchain` | Path of the Swift toolchain that projects use |
 | `~/Library/Developer/Xcode/Templates/` | ESP32-C6 Xcode template |
 
 Nothing is installed to system directories. Everything is scoped to your user home directory.
@@ -213,11 +214,12 @@ rm -rf ~/.espressif
 # Remove Xcode template
 rm -rf ~/Library/Developer/Xcode/Templates/Project\ Templates/Other/ESP32-C6.xctemplate
 
-# Remove serial monitor binary
-rm -f ~/Library/Developer/Toolchains/*.xctoolchain  # optional: removes Swift toolchain
+# Optional: remove the Swift toolchain, if no other projects use it
+swiftly uninstall 6.4.0  # if you use swiftly
+rm -rf ~/Library/Developer/Toolchains/swift-6.4.0-RELEASE.xctoolchain  # otherwise
 ```
 
-> **Note:** Removing `~/.swiftly/` and `~/Library/Developer/Toolchains/` will also remove any other Swift toolchains managed by swiftly.
+> **Note:** Earlier versions of `install.sh` installed swiftly in `~/.swiftly/` and a development snapshot toolchain (`swift-DEVELOPMENT-SNAPSHOT-*.xctoolchain`). Remove those only if you don't use swiftly or that toolchain for anything else.
 
 ---
 
