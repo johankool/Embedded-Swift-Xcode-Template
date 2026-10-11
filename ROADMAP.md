@@ -21,6 +21,40 @@ This project is being developed as part of the [Swift Mentorship Program](https:
 - [ ] Homebrew tap
 - [ ] ESP32-S3 support (needs Xtensa support in Swift)
 
+## Ideas
+
+Not planned yet; worth considering.
+
+**Keeping projects up to date**
+- [ ] **Make the project's `build.sh` a thin wrapper.** Every project has its own copy of `build.sh`, so fixes never reach existing projects. If it only called a central `~/.espswift/scripts/build.sh`, re-running `install.sh` would update all projects.
+- [ ] **Version-stamp projects,** so a newer `install.sh` can detect old projects and offer to migrate them (this would also cover updating the Indexing target after a Swift upgrade).
+- [ ] **`install.sh --update` or a version check,** so users learn about new releases.
+
+**Running without hardware**
+- [ ] **Run firmware in the [Wokwi](https://wokwi.com) simulator.** Wokwi simulates the ESP32-C3, C6, C61 and H2 (C5 in alpha, P4 in beta; see [its ESP32 guide](https://docs.wokwi.com/guides/esp32)). `Cmd+R` could run the firmware without a board, and the [Wokwi CLI](https://docs.wokwi.com/wokwi-ci/getting-started) could make CI check that it actually runs and prints the expected serial output, not just that it builds. Its free tier allows 50 minutes of simulation per 30 days.
+- [ ] **Host-side unit tests:** test pure Swift logic in `Sources/` that doesn't use ESP-IDF on the Mac, with Swift Testing.
+
+**Debugging**
+- [ ] **On-chip debugging in Xcode:** the ESP32-C3, C5, C6, H2 and P4 have built-in USB-JTAG, so OpenOCD and LLDB could give breakpoints and stepping.
+- [ ] **Decode crash backtraces:** turn the addresses in a panic dump into file and line numbers in the Xcode console, as ESP-IDF's monitor does.
+
+**Everyday workflow**
+- [ ] **Compiler errors as clickable Xcode issues:** make sure Swift and C errors from the ESP-IDF build show up in the Issue navigator and jump to the line, and filter the noise from the build log.
+- [ ] **Choose the serial port** when several boards are connected; `detect_port.sh` picks the first one it finds.
+- [ ] **Interactive serial input:** Xcode's console is output-only; a "Monitor in Terminal" action could open the serial monitor in Terminal for two-way communication.
+- [ ] **Show the firmware size after each build** (`idf.py size`), so growth is visible before it hits the flash limit.
+- [ ] **Faster builds with ccache,** which ESP-IDF supports for its C code.
+- [ ] **Choose the board, not just the chip:** a Board pop-up (e.g. ESP32-C6-DevKitC-1 or DevKitM-1) could set the LED pin and flash size together.
+
+**Examples and libraries**
+- [ ] **Example projects:** Wi-Fi with an HTTP request, BLE, an I2C sensor, deep sleep; each a small project in an `Examples/` folder that CI builds as well.
+- [ ] **Swift packages:** a way to use Embedded-compatible Swift packages (such as `swift-mmio`) from `Sources/`, as CMake can't use Swift Package Manager directly.
+
+**Quality and reach**
+- [ ] **More checks in CI:** ShellCheck for the scripts, `uninstall.sh`, and `install.sh`'s swiftly route (CI only uses swift.org's installer).
+- [ ] **A VS Code and Cursor guide:** code completion already works there through `compile_commands.json`; also a step toward Linux support.
+- [ ] **A documentation site:** a DocC tutorial ("your first firmware") built around the template.
+
 ## Done
 
 - [x] ESP32-C3 and other RISC-V chips (ESP32-C2, C5, C61, H2, P4)
