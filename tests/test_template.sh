@@ -169,8 +169,11 @@ result = subprocess.run(["xcodebuild", "-project", os.path.join(project_dir, nam
                          "OBJROOT=" + os.path.join(output, "Intermediates"), *settings, "build"],
                         capture_output=True, text=True)
 if result.returncode != 0:
-    errors = [line for line in result.stdout.splitlines() if "error:" in line]
-    sys.exit("Building the Indexing target failed:\n" + "\n".join(errors[:20] or result.stdout.splitlines()[-20:]))
+    # xcodebuild reports compile errors on stdout and problems with the
+    # project itself (e.g. one it can't open) on stderr.
+    output = (result.stdout + "\n" + result.stderr).splitlines()
+    errors = [line for line in output if "error:" in line]
+    sys.exit("Building the Indexing target failed:\n" + "\n".join(errors[:20] or output[-20:]))
 
 # The Swift files the Indexing target compiled, and those ESP-IDF compiled.
 file_lists = [os.path.join(root, f) for root, _, files in os.walk(output)

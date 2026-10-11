@@ -190,7 +190,7 @@ Embedded-Swift-Xcode-Template/
 ## System Requirements
 
 - macOS 12+
-- Xcode 15+
+- Xcode 15+ (Xcode 27 for code completion)
 - Python 3.10+, CMake and Ninja; `install.sh` installs any that are missing with [Homebrew](https://brew.sh)
 - A board with a RISC-V based ESP32 chip (ESP32-C2, C3, C5, C6, C61, H2 or P4) and a USB connection
 - ~3GB disk space

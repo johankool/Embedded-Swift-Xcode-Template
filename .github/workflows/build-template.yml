@@ -27,7 +27,7 @@ jobs:
     outputs:
       chips: ${{ steps.chips.outputs.chips }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # The chips come from the template's Chip pop-up, so this list
       # doesn't need updating when chips are added.
@@ -43,14 +43,16 @@ jobs:
   build:
     name: Build (${{ matrix.chip }})
     needs: chips
-    runs-on: macos-latest
+    # Xcode 27: the template's Indexing target (code completion) is only
+    # verified with it. The default macOS runner has Xcode 26.
+    runs-on: xcode-27
     timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
         chip: ${{ fromJSON(needs.chips.outputs.chips) }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install ESPSwift
         run: bash install.sh
@@ -60,7 +62,7 @@ jobs:
 
       - name: Upload build log
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: build-log-${{ matrix.chip }}
           path: ${{ runner.temp }}/template-test/*.log
