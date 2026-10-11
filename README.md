@@ -243,20 +243,7 @@ It never removes Homebrew or the packages installed with it (Python, CMake, Ninj
 
 ## Roadmap
 
-This project is being developed as part of the [Swift Mentorship Program](https://www.swift.org/mentorship/).
-
-**Near-term**
-- [ ] Signed and notarized installer
-- [ ] GPIO and I2C sensor examples
-- [ ] Xcode scheme auto-reload without project reopen ([#3](https://github.com/letstakeabreak/Embedded-Swift-Xcode-Template/issues/3))
-- [ ] Installer progress bar improvements ([#4](https://github.com/letstakeabreak/Embedded-Swift-Xcode-Template/issues/4))
-
-**Longer-term**
-- [ ] `espswift` CLI (doctor / build / flash / monitor)
-- [ ] `espswift-idf` Swift Package (idiomatic Swift wrappers for ESP-IDF APIs)
-- [x] ESP32-C3 and other RISC-V chips (ESP32-C2, C5, C61, H2, P4)
-- [ ] ESP32-S3 support (needs Xtensa support in Swift)
-- [ ] Homebrew tap
+This project is being developed as part of the [Swift Mentorship Program](https://www.swift.org/mentorship/). See [ROADMAP.md](ROADMAP.md) for what's planned next.
 
 ---
 
