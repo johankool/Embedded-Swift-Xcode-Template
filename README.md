@@ -190,11 +190,11 @@ Embedded-Swift-Xcode-Template/
 
 ## System Requirements
 
-- macOS 12+
-- Xcode 15+ (Xcode 27 for code completion)
-- Python 3.10+, CMake and Ninja; `install.sh` installs any that are missing with [Homebrew](https://brew.sh)
+- Xcode 26 or later (tested with Xcode 26.5 and 27), and a macOS version that runs it. Code completion needs Xcode 27.
+- Python 3.14, CMake and Ninja; `install.sh` installs any that are missing with [Homebrew](https://brew.sh)
+- About 10 GB of disk space: the Swift toolchain takes about 5 GB, ESP-IDF and its tools about 4 GB, and each project's build output about 250 MB
+- An internet connection for installing, and for each project's first build (which downloads its ESP-IDF components)
 - A board with a RISC-V based ESP32 chip (ESP32-C2, C3, C5, C6, C61, H2 or P4) and a USB connection
-- ~3GB disk space
 
 ---
 
@@ -205,9 +205,10 @@ Running `install.sh` or `ESPSwiftInstaller.app` installs the following into your
 | Path | Contents |
 |------|----------|
 | `~/.espswift/esp-idf/` | ESP-IDF 6.1 (~750 MB) |
-| `~/.espswift/scripts/` | Helper scripts (flash, monitor, etc.) |
-| `~/.espressif/` | ESP-IDF Python tools and toolchains (~500 MB) |
-| `~/Library/Developer/Toolchains/` | Swift 6.4.0 release toolchain, installed with [swiftly](https://www.swift.org/install/macos/) if you have it, otherwise from swift.org's installer |
+| `~/.espswift/scripts/` | Helper scripts (build, flash, monitor, etc.) |
+| `~/.espswift/python/` | Link to Python 3.14, the version ESP-IDF's Python environment was made for |
+| `~/.espressif/` | ESP-IDF's compilers, tools and Python environment (~3.5 GB, including ~1 GB of downloaded archives) |
+| `~/Library/Developer/Toolchains/` | Swift 6.4.0 release toolchain (~5 GB), installed with [swiftly](https://www.swift.org/install/macos/) if you have it, otherwise from swift.org's installer |
 | `~/.espswift/swift-toolchain` | Path of the Swift toolchain that projects use |
 | `~/Library/Developer/Xcode/Templates/` | ESP32 RISC-V Xcode template |
 
