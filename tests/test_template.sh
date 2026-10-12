@@ -132,7 +132,7 @@ add_xcode_project() {
 
 # Builds the Indexing target with xcodebuild, the way Xcode's indexer
 # compiles it: with the Indexing target's settings from TemplateInfo.plist
-# and the swift-flags.rsp build.sh generated. Checks it compiles exactly the
+# and the include-paths.rsp build.sh generated. Checks it compiles exactly the
 # Swift files ESP-IDF compiles (both use everything in Sources/).
 check_indexing() {
     python3 - "$TEMPLATE" "$WORK_DIR/$1" "$PROJECT_NAME" <<'EOF'
@@ -149,7 +149,7 @@ for node, definition in plist["Definitions"].items():
         sys.exit(f"{node} doesn't belong to the Indexing target ({target.get('TargetIdentifier')}).")
 
 source_dir = os.path.join(project_dir, name)
-for generated in (".espswift/swift-flags.rsp", "compile_commands.json"):
+for generated in (".espswift/include-paths.rsp", "compile_commands.json"):
     if not os.path.exists(os.path.join(source_dir, generated)):
         sys.exit(f"Missing {generated}: setup_indexing.sh didn't run.")
 
