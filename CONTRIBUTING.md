@@ -37,7 +37,7 @@ git checkout -b fix/your-bug-fix
 
 ### 4. Make your changes and test them
 
-If you changed the template, `build.sh` or `install.sh`, build a project from the template for every chip it offers:
+If you changed the template, a script in `scripts/` or `install.sh`, build a project from the template for every chip it offers:
 
 ```bash
 bash tests/test_template.sh            # all chips
@@ -80,6 +80,7 @@ Embedded-Swift-Xcode-Template/
 ├── .github/workflows/
 │   └── build-template.yml           # Runs install.sh and the test in CI
 ├── scripts/
+│   ├── build.sh                     # Builds a project (each project's build.sh calls it)
 │   ├── detect_port.sh               # Auto-detects the connected board
 │   ├── flash.sh                     # Flashes firmware via idf.py
 │   ├── monitor.sh                   # Streams serial output

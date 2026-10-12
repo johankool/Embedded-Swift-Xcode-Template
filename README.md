@@ -160,6 +160,7 @@ Embedded-Swift-Xcode-Template/
 ├── tests/
 │   └── test_template.sh             # Builds the template for every chip (also run in CI)
 ├── scripts/
+│   ├── build.sh                     # Builds a project (each project's build.sh calls it)
 │   ├── detect_port.sh               # Auto-detects the connected board
 │   ├── flash.sh                     # Flashes firmware via idf.py
 │   ├── monitor.sh                   # Streams serial output to stdout
@@ -173,7 +174,7 @@ Embedded-Swift-Xcode-Template/
 └── ESP32 RISC-V.xctemplate/
 ├── TemplateInfo.plist       # Xcode template configuration
 ├── README.md                # Getting-started guide for the new project
-├── build.sh                 # ESP-IDF build + flash wrapper
+├── build.sh                 # Calls ESPSwift's scripts/build.sh
 ├── CMakeLists.txt           # Root CMake configuration
 ├── sdkconfig.defaults       # ESP-IDF defaults (watchdog off)
 ├── gitignore                # Installed as .gitignore at the project root
@@ -211,6 +212,12 @@ Running `install.sh` or `ESPSwiftInstaller.app` installs the following into your
 | `~/Library/Developer/Xcode/Templates/` | ESP32 RISC-V Xcode template |
 
 Nothing is installed to system directories. Everything is scoped to your user home directory.
+
+### Updating ESPSwift
+
+Run `install.sh` again from an up-to-date copy of this repository. Each project's `build.sh` only calls the build script `install.sh` installs (`~/.espswift/scripts/build.sh`), so updating ESPSwift also updates how existing projects build.
+
+Projects created before that change have the whole build script in their own `build.sh`. Replace it once with the template's: copy `Xcode Template/ESP32 RISC-V.xctemplate/build.sh` from this repository over the project's `build.sh` (in the folder with `CMakeLists.txt`).
 
 ### Switching ESP-IDF versions
 

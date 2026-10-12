@@ -21,7 +21,7 @@ ___PROJECTNAME___/
 ├── Sources/                  # Your Swift code
 │   └── main.swift            # Your firmware code starts here
 └── ___PROJECTNAME___/         # The ESP-IDF project (the "source folder")
-    ├── build.sh              # Run by Xcode on Cmd+B: builds with ESP-IDF, then flashes
+    ├── build.sh              # Run by Xcode on Cmd+B: calls ESPSwift's build script (ESP-IDF build, then flash)
     ├── CMakeLists.txt        # ESP-IDF project file
     ├── sdkconfig.defaults    # The chip and your ESP-IDF settings
     ├── sdkconfig             # Full ESP-IDF settings, created on first build

@@ -26,8 +26,7 @@ This project is being developed as part of the [Swift Mentorship Program](https:
 Not planned yet; worth considering.
 
 **Keeping projects up to date**
-- [ ] **Make the project's `build.sh` a thin wrapper.** Every project has its own copy of `build.sh`, so fixes never reach existing projects. If it only called a central `~/.espswift/scripts/build.sh`, re-running `install.sh` would update all projects.
-- [ ] **Version-stamp projects,** so a newer `install.sh` can detect old projects and offer to migrate them (this would also cover updating the Indexing target after a Swift upgrade).
+- [ ] **Version-stamp projects,** so a newer `install.sh` can detect old projects and offer to migrate them (for example replacing a pre-wrapper `build.sh`, or updating the Indexing target after a Swift upgrade).
 - [ ] **`install.sh --update` or a version check,** so users learn about new releases.
 
 **Running without hardware**
@@ -60,3 +59,4 @@ Not planned yet; worth considering.
 - [x] ESP32-C3 and other RISC-V chips (ESP32-C2, C5, C61, H2, P4)
 - [x] Code completion and jump to definition in Xcode (Xcode 27)
 - [x] Template build test, run in CI for every chip
+- [x] Each project's `build.sh` calls ESPSwift's installed build script, so updating ESPSwift updates the build of every project created from then on
