@@ -12,8 +12,10 @@
 #
 #   1. .espswift/include-paths.rsp in the source folder: the include paths
 #      ESP-IDF used for the Swift code (for the bridging header), taken from
-#      compile_commands.json. The Indexing target passes it to the C importer
-#      with -Xcc @file.
+#      compile_commands.json. The Indexing target passes it to the Swift
+#      frontend with -Xfrontend @file. (A bare @file in OTHER_SWIFT_FLAGS is
+#      taken as an input file by Xcode 26, and with -Xcc @file Xcode 26's
+#      C importer compiles the file instead of reading it.)
 #   2. compile_commands.json in the source folder, where SourceKit-LSP based
 #      editors (VS Code, Cursor, ...) find it.
 #
@@ -52,10 +54,10 @@ if not swift:
     sys.exit("Error: no Swift sources in compile_commands.json.")
 args = swift[0].get("arguments") or shlex.split(swift[0]["command"])
 
-# Only the include paths: the Indexing target passes this file to the
-# Swift compiler's C importer (-Xcc @file), which reads the bridging
-# header. The other flags aren't needed for indexing, and the C importer
-# doesn't accept compiler-driver flags such as -march in a file.
+# Only the include paths, which the bridging header needs: the Indexing
+# target passes this file to the Swift frontend (-Xfrontend @file). The
+# other flags aren't needed for indexing. In a file, the frontend only
+# accepts the joined form, -I<path>.
 include_paths = []
 for i, arg in enumerate(args):
     if arg == "-I" and i + 1 < len(args):

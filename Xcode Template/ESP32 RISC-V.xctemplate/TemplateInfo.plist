@@ -186,7 +186,7 @@
 				<key>EXCLUDED_SOURCE_FILE_NAMES</key>
 				<string>"$(SRCROOT)/___PROJECTNAME___/*" "$(SRCROOT)/___PROJECTNAME___/*/*" "$(SRCROOT)/___PROJECTNAME___/*/*/*" "$(SRCROOT)/___PROJECTNAME___/*/*/*/*" "$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*" "$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*" "$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*" "$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*/*" "$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*/*/*" "$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*/*/*/*" "$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*/*/*/*/*" "$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*/*/*/*/*/*" "$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*/*/*/*/*/*/*" "$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*/*/*/*/*/*/*/*" "$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*" "$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*" *.c *.cc *.cpp *.cxx *.m *.mm *.s *.S</string>
 				<key>OTHER_SWIFT_FLAGS</key>
-				<string>-parse-as-library -Xcc "@$(PROJECT_DIR)/___PROJECTNAME___/.espswift/include-paths.rsp"</string>
+				<string>-parse-as-library -Xfrontend "@$(PROJECT_DIR)/___PROJECTNAME___/.espswift/include-paths.rsp"</string>
 				<key>PRODUCT_NAME</key>
 				<string>Indexing</string>
 				<key>SDKROOT</key>
