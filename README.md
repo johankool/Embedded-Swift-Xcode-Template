@@ -190,7 +190,7 @@ Embedded-Swift-Xcode-Template/
 
 ## System Requirements
 
-- Xcode 26 or later (tested with Xcode 26.5 and 27), and a macOS version that runs it. Code completion needs Xcode 27.
+- Xcode 26 or later (tested with Xcode 26.6 and 27), and a macOS version that runs it. Code completion needs Xcode 27.
 - Python 3.14, CMake and Ninja; `install.sh` installs any that are missing with [Homebrew](https://brew.sh)
 - About 10 GB of disk space: the Swift toolchain takes about 5 GB, ESP-IDF and its tools about 4 GB, and each project's build output about 250 MB
 - An internet connection for installing, and for each project's first build (which downloads its ESP-IDF components)
