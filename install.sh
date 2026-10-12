@@ -40,6 +40,14 @@ IDF_VERSION="v6.1"
 SWIFT_VERSION="6.4.0"
 SWIFT_TOOLCHAIN="$HOME/Library/Developer/Toolchains/swift-$SWIFT_VERSION-RELEASE.xctoolchain"
 
+# The Python version for ESP-IDF. ESP-IDF sets up its Python environment for
+# one Python version and later finds it by the version of the first python3
+# on PATH, so when Homebrew's python3 moves to a newer release, builds can no
+# longer find the environment. Pin it, like ESP-IDF and Swift: install.sh and
+# the build scripts use $ESPSWIFT_HOME/python/bin, where python3 is this one.
+PYTHON_VERSION="3.14"
+PYTHON_BIN="$ESPSWIFT_HOME/python/bin"
+
 # ESP-IDF's own tool installer (xtensa toolchain, openocd, etc.)
 # will place binaries here instead of the default ~/.espressif/.
 # IDF_TOOLS_PATH="$ESPSWIFT_HOME/tools"
@@ -55,14 +63,14 @@ mkdir -p "$ESPSWIFT_HOME"
 
 # Check for the tools ESP-IDF needs before downloading anything, so a
 # missing tool is reported up front instead of after a large download.
-#   - Python 3.10 or newer (macOS's built-in python3 is 3.9)
+#   - Python $PYTHON_VERSION (see PYTHON_VERSION above)
 #   - CMake and Ninja (ESP-IDF expects them from Homebrew on macOS)
 # Homebrew is added to PATH explicitly, for Apple silicon and Intel Macs.
 export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
 
 MISSING_FORMULAE=()
-if ! python3 -c 'import sys; sys.exit(sys.version_info < (3, 10))' &>/dev/null; then
-    MISSING_FORMULAE+=(python)
+if ! command -v "python$PYTHON_VERSION" &>/dev/null; then
+    MISSING_FORMULAE+=("python@$PYTHON_VERSION")
 fi
 if ! command -v cmake &>/dev/null; then
     MISSING_FORMULAE+=(cmake)
@@ -76,13 +84,19 @@ if [ ${#MISSING_FORMULAE[@]} -gt 0 ]; then
         echo "Installing ${MISSING_FORMULAE[*]} via Homebrew..."
         brew install "${MISSING_FORMULAE[@]}"
     else
-        echo "Error: ESP-IDF needs Python 3.10 or newer, CMake and Ninja." >&2
+        echo "Error: ESP-IDF needs Python $PYTHON_VERSION, CMake and Ninja." >&2
         echo "Missing: ${MISSING_FORMULAE[*]}" >&2
         echo "Install Homebrew from https://brew.sh and run this script again," >&2
         echo "or install the missing tools yourself and make sure they are on PATH." >&2
         exit 1
     fi
 fi
+
+# Make python3 mean Python $PYTHON_VERSION for ESP-IDF, here and in the
+# build scripts.
+mkdir -p "$PYTHON_BIN"
+ln -sfn "$(command -v "python$PYTHON_VERSION")" "$PYTHON_BIN/python3"
+export PATH="$PYTHON_BIN:$PATH"
 
 # ---- Step 1 : ESP-IDF ----
 
@@ -109,17 +123,21 @@ else
     # is not needed to build and makes the download much smaller.
     git clone --recursive --branch "$IDF_VERSION" --depth 1 --shallow-submodules \
         https://github.com/espressif/esp-idf.git "$IDF_PATH"
-    
-    # Install the tools for the RISC-V chips the template supports only
-    # (Embedded Swift doesn't support the Xtensa chips), which keeps the
-    # download small. They all share the same RISC-V compiler.
-    # Passing IDF_TOOLS_PATH redirects all binaries to ~/.espswift/tools/
-    # instead of the default ~/.espressif/.
-    # export IDF_TOOLS_PATH="$IDF_TOOLS_PATH"
-    "$IDF_PATH/install.sh" esp32c2,esp32c3,esp32c5,esp32c6,esp32c61,esp32h2,esp32p4
-
-    echo "ESP-IDF installed successfully."
 fi
+
+# Install ESP-IDF's tools and its Python environment for Python
+# $PYTHON_VERSION. This also runs when ESP-IDF was already installed: it only
+# installs what's missing, such as the environment after an install made
+# with another Python version.
+# Only the tools for the RISC-V chips the template supports are installed
+# (Embedded Swift doesn't support the Xtensa chips), which keeps the
+# download small. They all share the same RISC-V compiler.
+# Passing IDF_TOOLS_PATH redirects all binaries to ~/.espswift/tools/
+# instead of the default ~/.espressif/.
+# export IDF_TOOLS_PATH="$IDF_TOOLS_PATH"
+"$IDF_PATH/install.sh" esp32c2,esp32c3,esp32c5,esp32c6,esp32c61,esp32h2,esp32p4
+
+echo "ESP-IDF installed successfully."
 
 
 # ---- Step 2: Embedded Swift Toolchain ----

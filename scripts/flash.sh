@@ -65,6 +65,11 @@ export IDF_PATH="$HOME/.espswift/esp-idf"
 # system-bundled Python that might be too old.
 export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:$PATH"
 
+# ESP-IDF finds its Python environment by the version of the first python3
+# on PATH. install.sh pins that version in ~/.espswift/python/bin, so that a
+# newer Homebrew Python doesn't break the build.
+export PATH="$HOME/.espswift/python/bin:$PATH"
+
 # Source ESP-IDF's setup script. This adds idf.py to PATH and exports
 # additional environment variables (IDF_TOOLS_EXPORT_CMD, etc.) that
 # idf.py needs to find its tools. It also selects the Python virtual

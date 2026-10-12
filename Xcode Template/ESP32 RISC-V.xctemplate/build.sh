@@ -38,6 +38,11 @@ fi
 # so that ESP-IDF can find python3.
 export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:$PATH"
 
+# ESP-IDF finds its Python environment by the version of the first python3
+# on PATH. install.sh pins that version in ~/.espswift/python/bin, so that a
+# newer Homebrew Python doesn't break the build.
+export PATH="$HOME/.espswift/python/bin:$PATH"
+
 # Source the ESP-IDF environment so idf.py is on PATH.
 source "$IDF_PATH/export.sh"
 
