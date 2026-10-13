@@ -58,7 +58,7 @@ struct CompletionView: View {
                 )
                 NextStepRow(
                     number: "4",
-                    text: "Press ⌘B to build and flash automatically"
+                    text: "Press ⌘R to build, flash and see the output"
                 )
             }
             .padding(.horizontal, 64)

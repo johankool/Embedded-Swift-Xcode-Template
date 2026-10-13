@@ -15,7 +15,7 @@ Write ESP32-C6 firmware in Swift — build and flash directly from Xcode, just l
 
 ✅ **Native Swift on Microcontrollers** — Write ESP32 firmware in Swift, not C/C++  
 ✅ **Choose Your Chip** — ESP32-C2, C3, C5, C6, C61, H2 or P4, picked when you create a project  
-✅ **Xcode Integration** — `Cmd+B` builds and flashes automatically  
+✅ **Xcode Integration** — `Cmd+B` builds, `Cmd+R` flashes the board and shows its output  
 ✅ **Serial Monitor** — `Cmd+R` streams board output to Xcode console  
 ✅ **Code Completion** — completion and jump to definition for Swift and ESP-IDF's C APIs  
 ✅ **One-Click Install** — Single `install.sh` sets up everything  
@@ -47,8 +47,8 @@ Installation takes 5–10 minutes (~3GB download).
 1. Restart Xcode
 2. File → New → Project → Other → **ESP32 RISC-V**, and choose your board's chip in the **Chip** pop-up
 3. Connect your board via USB
-4. Press `Cmd+B` — builds and flashes automatically
-5. Press `Cmd+R` — opens serial monitor in Xcode console
+4. Press `Cmd+B` — builds the firmware
+5. Press `Cmd+R` — flashes it to the board and shows its serial output in Xcode's console
 
 ---
 
@@ -161,6 +161,7 @@ Embedded-Swift-Xcode-Template/
 │   └── test_template.sh             # Builds the template for every chip (also run in CI)
 ├── scripts/
 │   ├── build.sh                     # Builds a project (each project's build.sh calls it)
+│   ├── run.sh                       # Cmd+R: flashes the last build, then starts the monitor
 │   ├── detect_port.sh               # Auto-detects the connected board
 │   ├── flash.sh                     # Flashes firmware via idf.py
 │   ├── monitor.sh                   # Streams serial output to stdout

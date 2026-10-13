@@ -155,30 +155,20 @@ else
     fi
 fi
 
-# Set ESPSWIFT_BUILD_ONLY=1 to only build, without flashing or setting up
-# the Xcode scheme (used by tests/test_template.sh).
+# The build doesn't flash the board: Cmd+R does (run.sh, which Xcode starts
+# through the monitor binary), so builds are faster and work without a
+# board. Set ESPSWIFT_BUILD_ONLY=1 to also skip recording the build and
+# setting up the Xcode scheme (used by tests/test_template.sh).
 if [ "$ACTION" != "clean" ] && [ "$ESPSWIFT_BUILD_ONLY" != "1" ]; then
-    # After a successful build, attempt to flash the firmware to a
-    # connected board automatically. This mimics the Arduino IDE
-    # workflow where Cmd+B both compiles and uploads in one step.
-    #
-    # If no board is connected, flash.sh will exit with a non-zero
-    # status, but we don't propagate that as a build failure since
-    # the binary itself built successfully.
-    FLASH_SCRIPT="$ESPSWIFT_SCRIPTS/flash.sh"
-    if [ -x "$FLASH_SCRIPT" ]; then
-        echo ""
-        echo "================================================="
-        echo " Auto-Flashing to ESP32"
-        echo "================================================="
-        "$FLASH_SCRIPT" "$PWD" "$BUILD_DIR" || \
-            echo "Warning: Flash failed or no device connected."
-    fi
+    # ── Record the Build ─────────────────────────────────────────
+    # Cmd+R builds and then starts run.sh, which flashes the firmware
+    # this records: the source folder and ESP-IDF's build folder.
+    printf '%s\n%s\n' "$PWD" "$BUILD_DIR" > "$HOME/.espswift/last-build"
 
     # ── Xcode Scheme Setup ───────────────────────────────────────
     # On first build, generate a properly configured Xcode scheme
-    # so that pressing Cmd+R launches the serial monitor instead of
-    # asking the user to manually configure Edit Scheme → Run.
+    # so that pressing Cmd+R flashes the board and shows its serial
+    # output, instead of asking the user to configure Edit Scheme → Run.
     #
     # setup_scheme.sh is idempotent: it skips if the scheme exists,
     # so subsequent builds incur no overhead and user customizations

@@ -254,8 +254,9 @@ chmod +x "$ESPSWIFT_HOME/scripts/"*.sh
 
 # Compile the monitor wrapper binary. Xcode's Scheme > Run > Executable
 # only accepts native Mach-O binaries, not shell scripts. This tiny C
-# wrapper does nothing but execve() into monitor.sh, satisfying Xcode's
-# requirement while keeping the actual logic in shell.
+# wrapper does nothing but execve() into run.sh (which flashes the board,
+# then starts monitor.sh), satisfying Xcode's requirement while keeping
+# the actual logic in shell.
 echo "Compiling monitor wrapper binary..."
 clang -o "$ESPSWIFT_HOME/scripts/monitor" "$(dirname "$0")/scripts/monitor_wrapper.c"
 chmod +x "$ESPSWIFT_HOME/scripts/monitor"

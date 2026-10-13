@@ -3,8 +3,8 @@
 # flash.sh
 # Flashes a built ESP32 project to a connected board.
 #
-# This script is typically called from the Xcode Run Script Phase after
-# a successful build, but it can also be run manually from the terminal.
+# This script is called by run.sh when the user presses Run (Cmd+R) in
+# Xcode, but it can also be run manually from the terminal.
 #
 # Rather than calling esptool.py directly with a single binary, we delegate
 # the actual flashing to `idf.py flash`. ESP-IDF projects are not just a
@@ -119,6 +119,7 @@ echo "Flashing project to $PORT..."
 #                table, app).
 # idf.py handles baud rate negotiation, reset sequencing, and SHA
 # verification automatically.
-idf.py -B "$BUILD_DIR" -p "$PORT" flash
+# Exit with an error if it fails, so run.sh doesn't start the monitor.
+idf.py -B "$BUILD_DIR" -p "$PORT" flash || exit 1
 
 echo "Flash complete."

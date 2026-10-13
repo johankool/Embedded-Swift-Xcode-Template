@@ -6,11 +6,13 @@ Embedded Swift firmware for an ESP32 (`___VARIABLE_chip___`), built with ESP-IDF
 
 | Shortcut | What it does |
 | --- | --- |
-| `Cmd+B` | Builds the firmware and flashes it to a connected board |
-| `Cmd+R` | Shows the board's serial output in Xcode's console |
+| `Cmd+B` | Builds the firmware |
+| `Cmd+R` | Builds, flashes the firmware to the connected board, and shows its serial output in Xcode's console |
 | `Cmd+Shift+K` | Cleans the build |
 
-After the very first `Cmd+B`, close and reopen the project once so that `Cmd+R` shows the serial output.
+After the very first `Cmd+B`, close and reopen the project once so that `Cmd+R` flashes the board and shows its serial output.
+
+**Product ▸ Perform Action ▸ Run Without Building** flashes whatever was built last, even if that was another project.
 
 ## What's in this project
 
@@ -21,7 +23,7 @@ ___PROJECTNAME___/
 ├── Sources/                  # Your Swift code
 │   └── main.swift            # Your firmware code starts here
 └── ___PROJECTNAME___/         # The ESP-IDF project (the "source folder")
-    ├── build.sh              # Run by Xcode on Cmd+B: calls ESPSwift's build script (ESP-IDF build, then flash)
+    ├── build.sh              # Run by Xcode on Cmd+B: calls ESPSwift's build script
     ├── CMakeLists.txt        # ESP-IDF project file
     ├── sdkconfig.defaults    # The chip and your ESP-IDF settings
     ├── sdkconfig             # Full ESP-IDF settings, created on first build

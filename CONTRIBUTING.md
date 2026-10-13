@@ -49,7 +49,7 @@ It creates each project the way Xcode does and builds it with the ESP-IDF and Sw
 The test doesn't cover Xcode or hardware, so for changes there, also check by hand:
 - After running `install.sh` and restarting Xcode, **ESP32 RISC-V** appears under File → New → Project → Other, with the **Chip** pop-up.
 - A new project's `sdkconfig.defaults` has the chip you picked, and `README.md` sits next to the `.xcodeproj`.
-- `Cmd+B` builds and flashes your board, and `Cmd+R` shows its serial output.
+- `Cmd+B` builds without flashing, and `Cmd+R` flashes your board and shows its serial output.
 - After that first build, code completion works in `Sources/main.swift` (e.g. typing `led_strip_`), and Command-clicking `vTaskDelay` opens FreeRTOS's `task.h`.
 
 ### 5. Commit
@@ -81,6 +81,7 @@ Embedded-Swift-Xcode-Template/
 │   └── build-template.yml           # Runs install.sh and the test in CI
 ├── scripts/
 │   ├── build.sh                     # Builds a project (each project's build.sh calls it)
+│   ├── run.sh                       # Cmd+R: flashes the last build, then starts the monitor
 │   ├── detect_port.sh               # Auto-detects the connected board
 │   ├── flash.sh                     # Flashes firmware via idf.py
 │   ├── monitor.sh                   # Streams serial output
