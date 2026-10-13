@@ -34,7 +34,6 @@ Not planned yet; worth considering.
 - [ ] **Decode crash backtraces:** turn the addresses in a panic dump into file and line numbers in the Xcode console, as ESP-IDF's monitor does.
 
 **Everyday workflow**
-- [ ] **Compiler errors as clickable Xcode issues:** make sure Swift and C errors from the ESP-IDF build show up in the Issue navigator and jump to the line, and filter the noise from the build log.
 - [ ] **Choose the serial port** when several boards are connected; `detect_port.sh` picks the first one it finds.
 - [ ] **Interactive serial input:** Xcode's console is output-only; a "Monitor in Terminal" action could open the serial monitor in Terminal for two-way communication.
 - [ ] **Show the firmware size after each build** (`idf.py size`), so growth is visible before it hits the flash limit.
@@ -60,3 +59,4 @@ Not planned yet; worth considering.
 - [x] On-chip debugging with LLDB (`debug.sh`): breakpoints in Swift, backtraces and variables, through the built-in USB-JTAG
 - [x] Each project's `build.sh` calls ESPSwift's installed build script, so updating ESPSwift updates the build of every project created from then on
 - [x] Projects carry a template version; the build warns when a project is out of date (older template, or code completion on an older Swift), and `update_project.sh` updates it
+- [x] Build errors and warnings (Swift, C, CMake, `sdkconfig.defaults`) in Xcode's Issue navigator, linked to their line; the build log leaves out ESP-IDF's other output

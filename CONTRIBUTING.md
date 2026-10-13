@@ -81,6 +81,7 @@ Embedded-Swift-Xcode-Template/
 │   └── build-template.yml           # Runs install.sh and the test in CI
 ├── scripts/
 │   ├── build.sh                     # Builds a project (each project's build.sh calls it)
+│   ├── filter_build_output.sh       # Turns ESP-IDF's build output into Xcode issues
 │   ├── run.sh                       # Cmd+R: flashes the last build, then starts the monitor
 │   ├── debug.sh                     # Debugs the firmware on the board with LLDB
 │   ├── detect_port.sh               # Auto-detects the connected board

@@ -12,6 +12,8 @@ Embedded Swift firmware for an ESP32 (`___VARIABLE_chip___`), built with ESP-IDF
 
 **Product ▸ Perform Action ▸ Run Without Building** flashes whatever was built last, even if that was another project.
 
+Errors and warnings from the build, in Swift, C, `CMakeLists.txt` and `sdkconfig.defaults`, appear in the Issue navigator (`Cmd+5`); click one to jump to its line. The build log shows only those and the firmware size; ESP-IDF's full output is in the build folder, in `log/build-output.log` (the build log names it when a build fails). To see all of it in the build log, add a user-defined build setting `ESPSWIFT_VERBOSE` = `1` to the ___PROJECTNAME___ target.
+
 ## What's in this project
 
 ```

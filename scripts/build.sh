@@ -29,8 +29,7 @@ if [ -z "$IDF_PATH" ]; then
 fi
 
 if [ ! -d "$IDF_PATH" ]; then
-    echo "Error: ESP-IDF not found at $IDF_PATH" >&2
-    echo "Please run install.sh first." >&2
+    echo "error: ESP-IDF not found at $IDF_PATH. Please run install.sh first."
     exit 1
 fi
 
@@ -48,8 +47,16 @@ export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:$PATH"
 # newer Homebrew Python doesn't break the build.
 export PATH="$HOME/.espswift/python/bin:$PATH"
 
-# Source the ESP-IDF environment so idf.py is on PATH.
-source "$IDF_PATH/export.sh"
+# Source the ESP-IDF environment so idf.py is on PATH. Its messages are
+# only shown if it fails.
+EXPORT_LOG=$(mktemp -t espswift-export)
+if ! source "$IDF_PATH/export.sh" > "$EXPORT_LOG" 2>&1; then
+    sed $'s/\033\\[[0-9;]*m//g' "$EXPORT_LOG"
+    rm -f "$EXPORT_LOG"
+    echo "error: Couldn't set up ESP-IDF from $IDF_PATH. Please run install.sh."
+    exit 1
+fi
+rm -f "$EXPORT_LOG"
 
 # ── Embedded Swift Toolchain ─────────────────────────────────────
 
@@ -69,8 +76,7 @@ if [ -z "$ESPSWIFT_TOOLCHAIN" ]; then
 fi
 
 if [ ! -x "$ESPSWIFT_TOOLCHAIN/usr/bin/swiftc" ]; then
-    echo "Error: Swift toolchain not found${ESPSWIFT_TOOLCHAIN:+ at $ESPSWIFT_TOOLCHAIN}." >&2
-    echo "Please run install.sh first." >&2
+    echo "error: Swift toolchain not found${ESPSWIFT_TOOLCHAIN:+ at $ESPSWIFT_TOOLCHAIN}. Please run install.sh first."
     exit 1
 fi
 
@@ -126,6 +132,55 @@ fi
 
 echo "Build directory: $BUILD_DIR"
 
+# The helper scripts next to this one (~/.espswift/scripts once installed).
+ESPSWIFT_SCRIPTS="$(cd "$(dirname "$0")" && pwd)"
+
+# ── ESP-IDF Output ───────────────────────────────────────────────
+
+# Runs idf.py on the build directory. Its output is filtered for Xcode (see
+# filter_build_output.sh): errors and warnings show in the Issue navigator
+# and jump to their line, and the rest of the output is mostly left out.
+# The full output is kept in the build directory, in log/build-output.log.
+# Set ESPSWIFT_VERBOSE=1 to show it all, e.g. as a user-defined build
+# setting of the project's target, which Xcode passes on to this script.
+#
+# Colored output is turned off: idf.py removes the escape codes from it
+# when not writing to Terminal, which leaves part of them behind in some
+# compiler messages. This changes the CMake configuration once in existing
+# build directories, so their first build reconfigures them.
+run_idf() {
+    local idf_args=(-B "$BUILD_DIR" -D CMAKE_COLOR_DIAGNOSTICS=OFF "$@")
+    if [ "$ESPSWIFT_VERBOSE" = "1" ]; then
+        idf.py "${idf_args[@]}"
+        return
+    fi
+
+    local output count status
+    output=$(mktemp -t espswift-build-output)
+    count=$(mktemp -t espswift-error-count)
+    idf.py "${idf_args[@]}" 2>&1 | tee "$output" \
+        | bash "$ESPSWIFT_SCRIPTS/filter_build_output.sh" "$(pwd -P)" "$count"
+    status=${PIPESTATUS[0]}
+
+    # Keep the full output in the build directory, if there is one (after
+    # a clean, there isn't).
+    if [ -d "$BUILD_DIR" ]; then
+        mkdir -p "$BUILD_DIR/log"
+        mv "$output" "$BUILD_DIR/log/build-output.log"
+        output="$BUILD_DIR/log/build-output.log"
+    fi
+
+    if [ "$status" -ne 0 ]; then
+        if [ "$(cat "$count")" = "0" ]; then
+            echo "error: idf.py $1 failed. See its full output in $output"
+        else
+            echo "The full output of idf.py is in $output"
+        fi
+    fi
+    rm -f "$count"
+    return "$status"
+}
+
 # ── Target Setup ─────────────────────────────────────────────────
 
 # The chip is set by CONFIG_IDF_TARGET in sdkconfig.defaults. ESP-IDF
@@ -151,22 +206,19 @@ if [ "$CONFIGURED_CHIP" != "$CHIP" ]; then
         rm -rf "$BUILD_DIR"
     fi
     echo "Setting target to $CHIP..."
-    idf.py -B "$BUILD_DIR" set-target "$CHIP" || exit 1
+    run_idf set-target "$CHIP" || exit 1
 fi
 
 # ── Action ───────────────────────────────────────────────────────
 
 ACTION=${1:-build}
 
-# The helper scripts next to this one (~/.espswift/scripts once installed).
-ESPSWIFT_SCRIPTS="$(cd "$(dirname "$0")" && pwd)"
-
 if [ "$ACTION" = "clean" ]; then
     echo "Cleaning project..."
-    idf.py -B "$BUILD_DIR" fullclean || exit 1
+    run_idf fullclean || exit 1
 else
     echo "Building project..."
-    idf.py -B "$BUILD_DIR" build || exit 1
+    run_idf build || exit 1
 
     # Give the project's Indexing target, which Xcode uses for code
     # completion and jump-to-definition, the compiler settings of this
@@ -174,7 +226,7 @@ else
     SETUP_INDEXING="$ESPSWIFT_SCRIPTS/setup_indexing.sh"
     if [ -f "$SETUP_INDEXING" ]; then
         bash "$SETUP_INDEXING" "$PWD" "$BUILD_DIR" || \
-            echo "Warning: Could not set up code completion."
+            echo "warning: Could not set up code completion."
     fi
 fi
 

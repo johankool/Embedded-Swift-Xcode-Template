@@ -12,6 +12,8 @@
 # repository's helper scripts. Finally the project's Indexing target, which
 # Xcode uses for code completion, is built with xcodebuild, using the
 # template's settings for it and an Xcode project from tests/fixtures.
+# For the first chip, the build is also checked to report a Swift error
+# and a CMake error as Xcode issues, with their file and line.
 #
 # Builds use the ESP-IDF and Swift toolchain that install.sh installed, so
 # run install.sh first. Each chip is a full ESP-IDF build of a few minutes.
@@ -218,6 +220,37 @@ check_update() {
         || { echo "update_project.sh changed the project again on a second run."; return 1; }
 }
 
+# Checks that build errors reach Xcode as issues that jump to their line
+# (see scripts/filter_build_output.sh): breaks the Swift code, then the main
+# component's CMakeLists.txt, and looks for each error as a "file:line:
+# error:" line in the build output. Each file is restored afterwards.
+check_diagnostics() {
+    local project_dir="$WORK_DIR/$1"
+    local source_dir="$project_dir/$PROJECT_NAME"
+    local file line output
+
+    for file in "$project_dir/Sources/main.swift" "$source_dir/main/CMakeLists.txt"; do
+        cp "$file" "$file.orig"
+        case "$file" in
+            *.swift) echo 'let notANumber: Int = "text"' >> "$file" ;;
+            *) echo 'no_such_cmake_command()' >> "$file" ;;
+        esac
+        line=$(wc -l < "$file" | tr -d ' ')
+        output=$(cd "$source_dir" && ESPSWIFT_BUILD_ONLY=1 ESPSWIFT_SCRIPTS="$REPO_ROOT/scripts" \
+            PROJECT_DIR="$project_dir" PROJECT_NAME="$PROJECT_NAME" ./build.sh 2>&1)
+        mv "$file.orig" "$file"
+
+        # Compilers name the file by its real path (/private/var/... for a
+        # temporary directory).
+        file="$(cd "$(dirname "$file")" && pwd -P)/$(basename "$file")"
+        if ! echo "$output" | grep -F "$file:$line:" | grep -q ": error: "; then
+            echo "The build didn't report the error on line $line of $file as an Xcode issue. Its output:"
+            echo "$output" | tail -20
+            return 1
+        fi
+    done
+}
+
 FAILED=()
 
 for CHIP in "${CHIPS[@]}"; do
@@ -242,8 +275,11 @@ for CHIP in "${CHIPS[@]}"; do
     if (cd "$SOURCE_DIR" && ESPSWIFT_BUILD_ONLY=1 ESPSWIFT_SCRIPTS="$REPO_ROOT/scripts" \
             PROJECT_DIR="$WORK_DIR/$CHIP" PROJECT_NAME="$PROJECT_NAME" ./build.sh) > "$LOG" 2>&1 \
         && [ -f "$SOURCE_DIR/build/$PROJECT_NAME.bin" ]; then
+        # The error check builds twice more, so it runs for the first chip
+        # only; how errors are reported doesn't depend on the chip.
         if check_indexing "$CHIP" >> "$LOG" 2>&1 && check_scheme "$CHIP" >> "$LOG" 2>&1 \
-            && check_update "$CHIP" >> "$LOG" 2>&1; then
+            && check_update "$CHIP" >> "$LOG" 2>&1 \
+            && { [ "$CHIP" != "${CHIPS[0]}" ] || check_diagnostics "$CHIP" >> "$LOG" 2>&1; }; then
             echo "Passed in $(( $(date +%s) - START ))s: $(grep -m1 "^$PROJECT_NAME.bin binary size" "$LOG")"
         else
             echo "Built, but a check of the Xcode project failed. Last lines of $LOG:"
