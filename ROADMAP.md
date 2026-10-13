@@ -4,7 +4,6 @@ This project is being developed as part of the [Swift Mentorship Program](https:
 
 ## Near-term
 
-- [ ] **Run scheme without reopening the project** ([#3](https://github.com/letstakeabreak/Embedded-Swift-Xcode-Template/issues/3)). After the first build, the project has to be closed and reopened before `Cmd+R` shows the serial output, because `setup_scheme.sh` only writes the scheme during that build. The template could provide the scheme from the start, or the scheme could be written in a way Xcode picks up.
 - [ ] **Code completion with Xcode 26.** Projects build without errors in Xcode 26.6, but code completion and jump to definition don't work there; they're verified with Xcode 27 only, and so is CI. A starting point: compare the compiler arguments the editor gets (`xcodebuild -target Indexing -showBuildSettingsForIndex -json`) in Xcode 26.6 and 27. Testing it in CI would also need a test fixture (`tests/fixtures/project.pbxproj`) created by Xcode 26.
 - [ ] **Test the other chips on hardware.** Only the ESP32-C6 has run on a board. The ESP32-C2, C3, C5, C61, H2 and P4 are tested by building only, including the per-chip LED pins and the LED over SPI on the C2 and C61.
 - [ ] **Update existing projects after a Swift upgrade.** `install.sh` writes the installed Swift toolchain's identifier into the template, and projects keep the one they were created with. After installing a newer Swift, the Indexing target of existing projects has to be pointed at it by hand (its `TOOLCHAINS` build setting).
@@ -59,4 +58,5 @@ Not planned yet; worth considering.
 - [x] Code completion and jump to definition in Xcode (Xcode 27)
 - [x] Template build test, run in CI for every chip
 - [x] `Cmd+B` only builds; `Cmd+R` flashes the board and shows its serial output
+- [x] `Cmd+R` works in new projects without reopening them first ([#3](https://github.com/letstakeabreak/Embedded-Swift-Xcode-Template/issues/3))
 - [x] Each project's `build.sh` calls ESPSwift's installed build script, so updating ESPSwift updates the build of every project created from then on
