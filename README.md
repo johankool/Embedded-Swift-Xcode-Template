@@ -19,6 +19,7 @@ Write ESP32-C6 firmware in Swift — build and flash directly from Xcode, just l
 ✅ **Serial Monitor** — `Cmd+R` streams board output to Xcode console  
 ✅ **Code Completion** — completion and jump to definition for Swift and ESP-IDF's C APIs  
 ✅ **One-Click Install** — Single `install.sh` sets up everything  
+✅ **On-Chip Debugging** — breakpoints, backtraces and variables in Swift on the board, with LLDB  
 ✅ **NeoPixel Ready** — WS2812 RGB LED example included  
 
 ---
@@ -111,6 +112,10 @@ This is expected. Xcode runs a macOS helper tool on your Mac, which builds and f
 - **Xcode Destination**: My Mac (the helper runs here)
 - **Actual Flash Target**: your ESP32 board (connected via USB)
 
+### Can I debug the firmware on the board?
+
+Yes, with LLDB in Terminal: `~/.espswift/scripts/debug.sh` connects to the chip's built-in USB-JTAG (through the board's native USB port) with OpenOCD, and gives you breakpoints in Swift, backtraces and variables. The README in each new project explains it. Xcode's own debugger can't be used: Xcode only debugs Mac programs and Apple devices.
+
 ### Which chips are supported?
 
 The RISC-V based ESP32 chips: ESP32-C2, C3, C5, C6, C61, H2 and P4. Choose one in the **Chip** pop-up when you create a project. The template is tested on hardware with the ESP32-C6; the other chips are tested by building only.
@@ -162,6 +167,7 @@ Embedded-Swift-Xcode-Template/
 ├── scripts/
 │   ├── build.sh                     # Builds a project (each project's build.sh calls it)
 │   ├── run.sh                       # Cmd+R: flashes the last build, then starts the monitor
+│   ├── debug.sh                     # Debugs the firmware on the board with LLDB
 │   ├── detect_port.sh               # Auto-detects the connected board
 │   ├── flash.sh                     # Flashes firmware via idf.py
 │   ├── monitor.sh                   # Streams serial output to stdout

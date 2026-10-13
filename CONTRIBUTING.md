@@ -82,6 +82,7 @@ Embedded-Swift-Xcode-Template/
 ├── scripts/
 │   ├── build.sh                     # Builds a project (each project's build.sh calls it)
 │   ├── run.sh                       # Cmd+R: flashes the last build, then starts the monitor
+│   ├── debug.sh                     # Debugs the firmware on the board with LLDB
 │   ├── detect_port.sh               # Auto-detects the connected board
 │   ├── flash.sh                     # Flashes firmware via idf.py
 │   ├── monitor.sh                   # Streams serial output

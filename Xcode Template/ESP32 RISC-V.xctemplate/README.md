@@ -47,6 +47,31 @@ The Indexing target contains the Swift files in `Sources/`. For a file that does
 
 Other editors with Swift support, such as VS Code and Cursor, use `compile_commands.json` in the source folder.
 
+## Debugging on the board
+
+You can stop the firmware at breakpoints in your Swift code and look at the backtrace and variables, with the LLDB debugger in Terminal. (Xcode's own debugger can't connect to the board.)
+
+1. Connect the board through its **native USB port**: on the ESP32-C6-DevKitC-1, the port labelled **USB**, not **UART**. Debugging uses the chip's built-in USB-JTAG; flashing and the serial output work through this port too. (The ESP32-C2 has no built-in USB-JTAG and needs an external JTAG adapter.)
+2. Press `Cmd+R` in Xcode to build the project and flash it.
+3. In Terminal, run:
+
+   ```bash
+   ~/.espswift/scripts/debug.sh
+   ```
+
+   It connects to the board, lets the firmware start, and pauses it at the `(lldb)` prompt. For example:
+
+   ```
+   b main.swift:61    set a breakpoint on line 61 of main.swift
+   c                  continue until a breakpoint
+   bt                 show the backtrace
+   v                  show the variables
+   n / s              next line / step into
+   quit               stop debugging; the firmware continues
+   ```
+
+Up to 4 breakpoints can be set at once (they're hardware breakpoints, as the code runs from flash). Many variables show as "optimized out", because the firmware is optimized for size.
+
 ## Opening Terminal in the source folder
 
 Some tasks below need Terminal. The commands must run in the source folder, the one that contains `build.sh` and `main/`.

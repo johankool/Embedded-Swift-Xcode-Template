@@ -32,3 +32,8 @@ if(_swift_flags)
     list(FILTER _swift_flags EXCLUDE REGEX "gdwarf|ggdb")
     set_target_properties(${COMPONENT_LIB} PROPERTIES COMPILE_OPTIONS "${_swift_flags}")
 endif()
+
+# Debug information for the Swift code, so the debugger (debug.sh) can show
+# Swift source lines and variables. It's only in the .elf file, not in the
+# firmware that gets flashed.
+target_compile_options(${COMPONENT_LIB} PRIVATE "$<$<COMPILE_LANGUAGE:Swift>:-g>")
