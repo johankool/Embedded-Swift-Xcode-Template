@@ -88,6 +88,7 @@ Embedded-Swift-Xcode-Template/
 │   ├── monitor_wrapper.c            # Native binary wrapper for Xcode
 │   ├── setup_scheme.sh              # Auto-configures Xcode Run scheme
 │   ├── setup_indexing.sh            # Compiler settings for code completion
+│   ├── update_project.sh            # Updates projects created from an older template
 │   └── add_library.sh               # Adds ESP-IDF component libraries
 ├── installer/
 │   ├── build_pkg.sh                 # Builds .pkg installer

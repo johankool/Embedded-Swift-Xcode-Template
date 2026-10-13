@@ -87,6 +87,29 @@ export CMAKE_Swift_COMPILER="$ESPSWIFT_TOOLCHAIN/usr/bin/swiftc"
 TOOLCHAINS=$(/usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$ESPSWIFT_TOOLCHAIN/Info.plist")
 export TOOLCHAINS
 
+# ── Project Checks ───────────────────────────────────────────────
+
+# Warn (in Xcode's Issue navigator) when the project needs updating with
+# update_project.sh, which brings older projects up to date:
+#   - its files are older than the template (ESPSWIFT_PROJECT_VERSION, set by
+#     the project's build.sh; projects without it predate the version stamp)
+#   - its Indexing target, which code completion uses, names another Swift
+#     toolchain than the build, e.g. after a Swift upgrade
+CURRENT_PROJECT_VERSION=1
+UPDATE_COMMAND="~/.espswift/scripts/update_project.sh \"${PROJECT_DIR:-<project folder>}\""
+
+if [ "${ESPSWIFT_PROJECT_VERSION:-0}" -lt "$CURRENT_PROJECT_VERSION" ]; then
+    echo "warning: This project was created with an older version of the ESPSwift template. To update it, run in Terminal: $UPDATE_COMMAND"
+fi
+
+PBXPROJ="$PROJECT_DIR/$PROJECT_NAME.xcodeproj/project.pbxproj"
+if [ -n "$PROJECT_DIR" ] && [ -f "$PBXPROJ" ]; then
+    INDEXING_TOOLCHAINS=$(sed -n 's/^[[:space:]]*TOOLCHAINS = \(.*\);$/\1/p' "$PBXPROJ" | sort -u)
+    if [ -n "$INDEXING_TOOLCHAINS" ] && [ "$INDEXING_TOOLCHAINS" != "$TOOLCHAINS" ]; then
+        echo "warning: Code completion uses another Swift toolchain ($INDEXING_TOOLCHAINS) than the build ($TOOLCHAINS). To update the project, run in Terminal: $UPDATE_COMMAND"
+    fi
+fi
+
 # ── Build Directory ──────────────────────────────────────────────
 
 # Keep ESP-IDF's build output out of the source tree, in Xcode's

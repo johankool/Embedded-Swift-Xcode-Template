@@ -123,7 +123,7 @@ To switch an existing project to another chip, change `CONFIG_IDF_TARGET` in `sd
 
 Xcode doesn't index the project's main target, because ESP-IDF builds it. The second target, **Indexing**, exists only so Xcode can offer code completion and jump to definition. Every build gives it ESP-IDF's current compiler settings (see `scripts/setup_indexing.sh`), so completion works after the first `Cmd+B`. You never need to build it.
 
-Because Xcode's own toolchain can't compile Embedded Swift, the Indexing target uses the Swift toolchain `install.sh` installed, which `install.sh` writes into the template. Projects keep the toolchain they were created with: after `install.sh` installs a newer Swift version, set **TOOLCHAINS** in the Indexing target's build settings of existing projects to the new toolchain.
+Because Xcode's own toolchain can't compile Embedded Swift, the Indexing target uses the Swift toolchain `install.sh` installed, which `install.sh` writes into the template. Projects keep the toolchain they were created with; after `install.sh` installs a newer Swift version, the build warns about it, and `update_project.sh` (see [Updating ESPSwift](#updating-espswift)) points existing projects at the new toolchain.
 
 ### Why does the first build take so long?
 
@@ -167,6 +167,7 @@ Embedded-Swift-Xcode-Template/
 │   ├── monitor.sh                   # Streams serial output to stdout
 │   ├── setup_scheme.sh              # Auto-configures Xcode Run scheme
 │   ├── setup_indexing.sh            # Compiler settings for code completion
+│   ├── update_project.sh            # Updates projects created from an older template
 │   └── add_library.sh               # Adds ESP-IDF component libraries
 ├── installer/
 │   ├── build_pkg.sh                 # Builds .pkg installer
@@ -220,7 +221,13 @@ Nothing is installed to system directories. Everything is scoped to your user ho
 
 Run `install.sh` again from an up-to-date copy of this repository. Each project's `build.sh` only calls the build script `install.sh` installs (`~/.espswift/scripts/build.sh`), so updating ESPSwift also updates how existing projects build.
 
-Projects created before that change have the whole build script in their own `build.sh`. Replace it once with the template's: copy `Xcode Template/ESP32 RISC-V.xctemplate/build.sh` from this repository over the project's `build.sh` (in the folder with `CMakeLists.txt`).
+When an update changes what projects need, the build shows a warning in Xcode's Issue navigator with the command that updates the project. You can also run it yourself, with the folder that contains the project's `.xcodeproj`:
+
+```bash
+~/.espswift/scripts/update_project.sh ~/Developer/MyProject
+```
+
+It replaces the project's `build.sh` with the template's, points code completion at the Swift version `install.sh` installed, and adds the Run scheme if it's missing; it only changes what needs changing. Projects created before the build warned about this (with the whole build script in their own `build.sh`) need it once too.
 
 ### Switching ESP-IDF versions
 

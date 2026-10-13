@@ -6,7 +6,6 @@ This project is being developed as part of the [Swift Mentorship Program](https:
 
 - [ ] **Code completion with Xcode 26.** Projects build without errors in Xcode 26.6, but code completion and jump to definition don't work there; they're verified with Xcode 27 only, and so is CI. A starting point: compare the compiler arguments the editor gets (`xcodebuild -target Indexing -showBuildSettingsForIndex -json`) in Xcode 26.6 and 27. Testing it in CI would also need a test fixture (`tests/fixtures/project.pbxproj`) created by Xcode 26.
 - [ ] **Test the other chips on hardware.** Only the ESP32-C6 has run on a board. The ESP32-C2, C3, C5, C61, H2 and P4 are tested by building only, including the per-chip LED pins and the LED over SPI on the C2 and C61.
-- [ ] **Update existing projects after a Swift upgrade.** `install.sh` writes the installed Swift toolchain's identifier into the template, and projects keep the one they were created with. After installing a newer Swift, the Indexing target of existing projects has to be pointed at it by hand (its `TOOLCHAINS` build setting).
 - [ ] **Cache downloads in CI.** Every CI run downloads and installs ESP-IDF, its tools and Swift (about 5 of its 11 minutes). Caching them between runs would make CI faster.
 - [ ] Signed and notarized installer
 - [ ] GPIO and I2C sensor examples
@@ -24,7 +23,6 @@ This project is being developed as part of the [Swift Mentorship Program](https:
 Not planned yet; worth considering.
 
 **Keeping projects up to date**
-- [ ] **Version-stamp projects,** so a newer `install.sh` can detect old projects and offer to migrate them (for example replacing a pre-wrapper `build.sh`, or updating the Indexing target after a Swift upgrade).
 - [ ] **`install.sh --update` or a version check,** so users learn about new releases.
 
 **Running without hardware**
@@ -60,3 +58,4 @@ Not planned yet; worth considering.
 - [x] `Cmd+B` only builds; `Cmd+R` flashes the board and shows its serial output
 - [x] `Cmd+R` works in new projects without reopening them first ([#3](https://github.com/letstakeabreak/Embedded-Swift-Xcode-Template/issues/3))
 - [x] Each project's `build.sh` calls ESPSwift's installed build script, so updating ESPSwift updates the build of every project created from then on
+- [x] Projects carry a template version; the build warns when a project is out of date (older template, or code completion on an older Swift), and `update_project.sh` updates it

@@ -207,6 +207,17 @@ check_scheme() {
         || { echo "The template's Run scheme doesn't resolve to the $PROJECT_NAME target."; return 1; }
 }
 
+# Checks scripts/update_project.sh on the project: the test project's
+# Indexing target names a placeholder toolchain, so the first run must point
+# it at the installed one, and a second run must find nothing to update.
+check_update() {
+    local update=(env ESPSWIFT_TEMPLATE="$TEMPLATE" bash "$REPO_ROOT/scripts/update_project.sh" "$WORK_DIR/$1")
+    "${update[@]}" | grep -q "Pointed the Indexing target" \
+        || { echo "update_project.sh didn't update the Indexing target's toolchain."; return 1; }
+    "${update[@]}" | grep -q "Already up to date" \
+        || { echo "update_project.sh changed the project again on a second run."; return 1; }
+}
+
 FAILED=()
 
 for CHIP in "${CHIPS[@]}"; do
@@ -231,10 +242,11 @@ for CHIP in "${CHIPS[@]}"; do
     if (cd "$SOURCE_DIR" && ESPSWIFT_BUILD_ONLY=1 ESPSWIFT_SCRIPTS="$REPO_ROOT/scripts" \
             PROJECT_DIR="$WORK_DIR/$CHIP" PROJECT_NAME="$PROJECT_NAME" ./build.sh) > "$LOG" 2>&1 \
         && [ -f "$SOURCE_DIR/build/$PROJECT_NAME.bin" ]; then
-        if check_indexing "$CHIP" >> "$LOG" 2>&1 && check_scheme "$CHIP" >> "$LOG" 2>&1; then
+        if check_indexing "$CHIP" >> "$LOG" 2>&1 && check_scheme "$CHIP" >> "$LOG" 2>&1 \
+            && check_update "$CHIP" >> "$LOG" 2>&1; then
             echo "Passed in $(( $(date +%s) - START ))s: $(grep -m1 "^$PROJECT_NAME.bin binary size" "$LOG")"
         else
-            echo "Built, but the indexing or scheme check failed. Last lines of $LOG:"
+            echo "Built, but a check of the Xcode project failed. Last lines of $LOG:"
             tail -20 "$LOG"
             FAILED+=("$CHIP")
         fi
