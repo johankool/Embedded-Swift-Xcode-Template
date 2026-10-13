@@ -147,7 +147,7 @@ CH340-based boards may need a driver: [WCH CH340 Driver](https://www.wch-ic.com/
 
 ### `Cmd+R` doesn't show serial output
 
-After the first `Cmd+B`, close and reopen the project in Xcode. The serial monitor scheme is generated on first build and requires a project reload to take effect. ([#3](https://github.com/letstakeabreak/Embedded-Swift-Xcode-Template/issues/3))
+New projects come with the Run scheme that flashes the board and shows its output. In projects created before that, the scheme is generated on the first build, and Xcode only picks it up after you close and reopen the project ([#3](https://github.com/letstakeabreak/Embedded-Swift-Xcode-Template/issues/3)).
 
 ---
 
@@ -179,6 +179,7 @@ Embedded-Swift-Xcode-Template/
 ├── CMakeLists.txt           # Root CMake configuration
 ├── sdkconfig.defaults       # ESP-IDF defaults (watchdog off)
 ├── gitignore                # Installed as .gitignore at the project root
+├── scheme.xcscheme          # Run scheme (Cmd+R: flash and show serial output)
 ├── main/
 │   ├── CMakeLists.txt       # Component configuration; compiles all of Sources/
 │   ├── idf_component.yml    # ESP-IDF dependencies
@@ -260,7 +261,6 @@ This project is being developed as part of the [Swift Mentorship Program](https:
 
 - Embedded Swift is experimental; not all Swift standard library features are available
 - Xcode's serial console is read-only (no interactive input)
-- Scheme auto-generation requires closing and reopening the project after first build ([#3](https://github.com/letstakeabreak/Embedded-Swift-Xcode-Template/issues/3))
 - Build times are longer than native C/C++ due to full Swift recompilation
 
 See all open issues: [GitHub Issues](https://github.com/letstakeabreak/Embedded-Swift-Xcode-Template/issues)

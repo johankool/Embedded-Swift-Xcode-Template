@@ -238,6 +238,10 @@ with open(path, "wb") as f:
     plistlib.dump(template, f, sort_keys=True)
 EOF
 
+# The template's Run scheme (Cmd+R) starts the monitor binary installed
+# below, which needs an absolute path.
+sed -i '' "s|ESPSWIFT_MONITOR_PATH|$ESPSWIFT_HOME/scripts/monitor|" "$TARGET_TEMPLATE/scheme.xcscheme"
+
 echo "Xcode Template installed successfully."
 
 # ---- Step 4: Install helper scripts ----

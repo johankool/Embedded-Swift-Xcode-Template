@@ -99,6 +99,7 @@ Embedded-Swift-Xcode-Template/
 ├── TemplateInfo.plist
 ├── README.md
 ├── build.sh
+├── scheme.xcscheme
 ├── CMakeLists.txt
 ├── sdkconfig.defaults
 ├── main/
@@ -171,7 +172,6 @@ Before contributing, it helps to know the current limitations:
 
 - Embedded Swift is experimental — not all Swift standard library features work
 - Xcode's debug console is read-only (no serial input)
-- Scheme auto-generation requires closing/reopening the project after first build ([#3](https://github.com/letstakeabreak/Embedded-Swift-Xcode-Template/issues/3))
 
 See all open issues: [GitHub Issues](https://github.com/letstakeabreak/Embedded-Swift-Xcode-Template/issues)
 

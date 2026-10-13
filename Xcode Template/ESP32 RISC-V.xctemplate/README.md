@@ -10,8 +10,6 @@ Embedded Swift firmware for an ESP32 (`___VARIABLE_chip___`), built with ESP-IDF
 | `Cmd+R` | Builds, flashes the firmware to the connected board, and shows its serial output in Xcode's console |
 | `Cmd+Shift+K` | Cleans the build |
 
-After the very first `Cmd+B`, close and reopen the project once so that `Cmd+R` flashes the board and shows its serial output.
-
 **Product ▸ Perform Action ▸ Run Without Building** flashes whatever was built last, even if that was another project.
 
 ## What's in this project

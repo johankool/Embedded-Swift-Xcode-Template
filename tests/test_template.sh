@@ -104,6 +104,9 @@ for node in plist["Nodes"]:
     # Files go in the source folder (named after the project), except
     # top-level ones, which go next to the .xcodeproj.
     base = root if definition.get("IsTopLevel") else os.path.join(root, name)
+    # Xcode fills in placeholders in file paths as well as in file contents.
+    for placeholder, value in placeholders.items():
+        node = node.replace(placeholder, value)
     destination = os.path.normpath(os.path.join(base, node))
     os.makedirs(os.path.dirname(destination), exist_ok=True)
 
@@ -187,6 +190,23 @@ if indexed != compiled:
 EOF
 }
 
+# Checks that the template's Run scheme resolves to the project's build
+# target. Its target identifier is a placeholder (Xcode only assigns the
+# real one when it creates the project), so Xcode finds the target by name.
+# The scheme is checked under a name of its own, as Xcode also creates an
+# automatic scheme named after the target.
+check_scheme() {
+    local schemes="$WORK_DIR/$1/$PROJECT_NAME.xcodeproj/xcshareddata/xcschemes"
+    if [ ! -f "$schemes/$PROJECT_NAME.xcscheme" ]; then
+        echo "The template's Run scheme wasn't created in $schemes."
+        return 1
+    fi
+    cp "$schemes/$PROJECT_NAME.xcscheme" "$schemes/TemplateRunScheme.xcscheme"
+    xcodebuild -project "$WORK_DIR/$1/$PROJECT_NAME.xcodeproj" -scheme TemplateRunScheme -showBuildSettings 2>&1 \
+        | grep -q "and target $PROJECT_NAME:" \
+        || { echo "The template's Run scheme doesn't resolve to the $PROJECT_NAME target."; return 1; }
+}
+
 FAILED=()
 
 for CHIP in "${CHIPS[@]}"; do
@@ -211,10 +231,10 @@ for CHIP in "${CHIPS[@]}"; do
     if (cd "$SOURCE_DIR" && ESPSWIFT_BUILD_ONLY=1 ESPSWIFT_SCRIPTS="$REPO_ROOT/scripts" \
             PROJECT_DIR="$WORK_DIR/$CHIP" PROJECT_NAME="$PROJECT_NAME" ./build.sh) > "$LOG" 2>&1 \
         && [ -f "$SOURCE_DIR/build/$PROJECT_NAME.bin" ]; then
-        if check_indexing "$CHIP" >> "$LOG" 2>&1; then
+        if check_indexing "$CHIP" >> "$LOG" 2>&1 && check_scheme "$CHIP" >> "$LOG" 2>&1; then
             echo "Passed in $(( $(date +%s) - START ))s: $(grep -m1 "^$PROJECT_NAME.bin binary size" "$LOG")"
         else
-            echo "Built, but the indexing check failed. Last lines of $LOG:"
+            echo "Built, but the indexing or scheme check failed. Last lines of $LOG:"
             tail -20 "$LOG"
             FAILED+=("$CHIP")
         fi

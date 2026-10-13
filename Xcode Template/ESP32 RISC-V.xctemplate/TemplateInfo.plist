@@ -17,6 +17,13 @@
 			<key>TargetIndices</key>
 			<array/>
 		</dict>
+		<key>../___PROJECTNAME___.xcodeproj/xcshareddata/xcschemes/___PROJECTNAME___.xcscheme</key>
+		<dict>
+			<key>Path</key>
+			<string>scheme.xcscheme</string>
+			<key>TargetIndices</key>
+			<array/>
+		</dict>
 		<key>CMakeLists.txt</key>
 		<dict>
 			<key>Path</key>
@@ -113,6 +120,7 @@
 		<string>main/idf_component.yml</string>
 		<string>Sources/main.swift</string>
 		<string>../.gitignore</string>
+		<string>../___PROJECTNAME___.xcodeproj/xcshareddata/xcschemes/___PROJECTNAME___.xcscheme</string>
 	</array>
 	<key>Options</key>
 	<array>
