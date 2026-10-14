@@ -199,10 +199,17 @@ with open(pbxproj, "wb") as f:
     plistlib.dump(project, f)
 
 output = os.path.join(project_dir, "xcodebuild")
+build_dirs = ["SYMROOT=" + os.path.join(output, "Products"), "OBJROOT=" + os.path.join(output, "Intermediates")]
+
+# Xcode also builds the Kit package, for the Mac, into the same build
+# folder. The Indexing target must not import the Mac's modules from there.
+kit = subprocess.run(["xcodebuild", "-project", xcodeproj, "-scheme", "Blink", "-destination", "platform=macOS",
+                      *build_dirs, "build"], capture_output=True, text=True)
+if kit.returncode != 0:
+    sys.exit("Building the Kit package for the Mac failed:\n" + "\n".join((kit.stdout + kit.stderr).splitlines()[-20:]))
+
 result = subprocess.run(["xcodebuild", "-project", xcodeproj,
-                         "-target", "Indexing", "-configuration", "Debug",
-                         "SYMROOT=" + os.path.join(output, "Products"),
-                         "OBJROOT=" + os.path.join(output, "Intermediates"), "build"],
+                         "-target", "Indexing", "-configuration", "Debug", *build_dirs, "build"],
                         capture_output=True, text=True)
 # Other scripts take the first .xcodeproj in the project folder.
 shutil.rmtree(xcodeproj)

@@ -250,6 +250,8 @@
 			<dict>
 				<key>ALWAYS_SEARCH_USER_PATHS</key>
 				<string>NO</string>
+				<key>CONFIGURATION_BUILD_DIR</key>
+				<string>$(BUILD_DIR)/$(CONFIGURATION)-esp32</string>
 				<key>EXCLUDED_SOURCE_FILE_NAMES</key>
 				<string>"$(SRCROOT)/___PROJECTNAME___/*" "$(SRCROOT)/___PROJECTNAME___/*/*" "$(SRCROOT)/___PROJECTNAME___/*/*/*" "$(SRCROOT)/___PROJECTNAME___/*/*/*/*" "$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*" "$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*" "$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*" "$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*/*" "$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*/*/*" "$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*/*/*/*" "$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*/*/*/*/*" "$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*/*/*/*/*/*" "$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*/*/*/*/*/*/*" "$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*/*/*/*/*/*/*/*" "$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*" "$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*" *.c *.cc *.cpp *.cxx *.m *.mm *.s *.S</string>
 				<key>OTHER_SWIFT_FLAGS</key>
