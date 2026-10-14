@@ -7,78 +7,91 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		C7EDD5FE307C01C800178979 /* Firmware.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7EDD5FC307C01C800178979 /* Firmware.swift */; };
+		C78364A330803249000D72CC /* Firmware.swift in Sources */ = {isa = PBXBuildFile; fileRef = C783649930803249000D72CC /* Firmware.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		C7EDD5F0307C01C800178979 /* libIndexing.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libIndexing.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		C7EDD5F3307C01C800178979 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		C7EDD5FC307C01C800178979 /* Firmware.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Firmware.swift; sourceTree = "<group>"; };
-		C7EDD610307C01C800178979 /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
-		C7EDD611307C01C800178979 /* ESPIDF.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ESPIDF.h; sourceTree = "<group>"; };
-		C7EDD612307C01C800178979 /* ESPIDF.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ESPIDF.c; sourceTree = "<group>"; };
-		C7EDD616307C01C800178979 /* ___PROJECTNAME___Kit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = "___PROJECTNAME___Kit"; sourceTree = "<group>"; };
+		C783648D30803249000D72CC /* libIndexing.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libIndexing.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		C783649030803249000D72CC /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		C783649930803249000D72CC /* Firmware.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Firmware.swift; sourceTree = "<group>"; };
+		C783649A30803249000D72CC /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
+		C783649D30803249000D72CC /* ESPIDF.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ESPIDF.h; sourceTree = "<group>"; };
+		C783649E30803249000D72CC /* ESPIDF.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ESPIDF.c; sourceTree = "<group>"; };
+		C78364A030803249000D72CC /* ___PROJECTNAME___Kit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = "___PROJECTNAME___Kit"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		C78364A430803249000D72CC /* Exceptions for "___PROJECTNAME___" folder in "Indexing" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				main/swift_flags.c,
+			);
+			target = C783648C30803249000D72CC /* Indexing */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		C7EDD5F2307C01C800178979 /* ___PROJECTNAME___ */ = {
+		C783648F30803249000D72CC /* ___PROJECTNAME___ */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				C78364A430803249000D72CC /* Exceptions for "___PROJECTNAME___" folder in "Indexing" target */,
+			);
 			path = "___PROJECTNAME___";
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXGroup section */
-		C7EDD5E8307C01C800178979 = {
+		C783648530803249000D72CC = {
 			isa = PBXGroup;
 			children = (
-				C7EDD5F3307C01C800178979 /* README.md */,
-				C7EDD5F2307C01C800178979 /* ___PROJECTNAME___ */,
-				C7EDD5FB307C01C800178979 /* Firmware */,
-				C7EDD615307C01C800178979 /* Packages */,
-				C7EDD5F1307C01C800178979 /* Products */,
+				C783649030803249000D72CC /* README.md */,
+				C783648F30803249000D72CC /* ___PROJECTNAME___ */,
+				C783649830803249000D72CC /* Firmware */,
+				C783649F30803249000D72CC /* Packages */,
+				C783648E30803249000D72CC /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		C7EDD5F1307C01C800178979 /* Products */ = {
+		C783648E30803249000D72CC /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				C7EDD5F0307C01C800178979 /* libIndexing.a */,
+				C783648D30803249000D72CC /* libIndexing.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		C7EDD5FB307C01C800178979 /* Firmware */ = {
+		C783649830803249000D72CC /* Firmware */ = {
 			isa = PBXGroup;
 			children = (
-				C7EDD5FC307C01C800178979 /* Firmware.swift */,
-				C7EDD610307C01C800178979 /* Package.swift */,
-				C7EDD613307C01C800178979 /* ESPIDF */,
+				C783649930803249000D72CC /* Firmware.swift */,
+				C783649A30803249000D72CC /* Package.swift */,
+				C783649B30803249000D72CC /* ESPIDF */,
 			);
 			path = Firmware;
 			sourceTree = "<group>";
 		};
-		C7EDD613307C01C800178979 /* ESPIDF */ = {
+		C783649B30803249000D72CC /* ESPIDF */ = {
 			isa = PBXGroup;
 			children = (
-				C7EDD614307C01C800178979 /* include */,
-				C7EDD612307C01C800178979 /* ESPIDF.c */,
+				C783649E30803249000D72CC /* ESPIDF.c */,
+				C783649C30803249000D72CC /* include */,
 			);
 			path = ESPIDF;
 			sourceTree = "<group>";
 		};
-		C7EDD614307C01C800178979 /* include */ = {
+		C783649C30803249000D72CC /* include */ = {
 			isa = PBXGroup;
 			children = (
-				C7EDD611307C01C800178979 /* ESPIDF.h */,
+				C783649D30803249000D72CC /* ESPIDF.h */,
 			);
 			path = include;
 			sourceTree = "<group>";
 		};
-		C7EDD615307C01C800178979 /* Packages */ = {
+		C783649F30803249000D72CC /* Packages */ = {
 			isa = PBXGroup;
 			children = (
-				C7EDD616307C01C800178979 /* ___PROJECTNAME___Kit */,
+				C78364A030803249000D72CC /* ___PROJECTNAME___Kit */,
 			);
 			path = Packages;
 			sourceTree = "<group>";
@@ -86,13 +99,13 @@
 /* End PBXGroup section */
 
 /* Begin PBXLegacyTarget section */
-		C7EDD5ED307C01C800178979 /* ___PROJECTNAME___ */ = {
+		C783648A30803249000D72CC /* ___PROJECTNAME___ */ = {
 			isa = PBXLegacyTarget;
 			buildArgumentsString = "$(ACTION)";
-			buildConfigurationList = C7EDD601307C01C800178979 /* Build configuration list for PBXLegacyTarget "___PROJECTNAME___" */;
+			buildConfigurationList = C78364AA30803249000D72CC /* Build configuration list for PBXLegacyTarget "___PROJECTNAME___" */;
 			buildToolPath = "$(PROJECT_DIR)/___PROJECTNAME___/build.sh";
 			fileSystemSynchronizedGroups = (
-				C7EDD5F2307C01C800178979 /* ___PROJECTNAME___ */,
+				C783648F30803249000D72CC /* ___PROJECTNAME___ */,
 			);
 			name = "___PROJECTNAME___";
 			passBuildSettingsInEnvironment = 1;
@@ -101,74 +114,163 @@
 /* End PBXLegacyTarget section */
 
 /* Begin PBXNativeTarget section */
-		C7EDD5EF307C01C800178979 /* Indexing */ = {
+		C783648C30803249000D72CC /* Indexing */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = C7EDD604307C01C800178979 /* Build configuration list for PBXNativeTarget "Indexing" */;
+			buildConfigurationList = C78364A530803249000D72CC /* Build configuration list for PBXNativeTarget "Indexing" */;
 			buildPhases = (
-				C7EDD5EE307C01C800178979 /* Sources */,
+				C783648B30803249000D72CC /* Sources */,
 			);
 			buildRules = (
 			);
 			fileSystemSynchronizedGroups = (
-				C7EDD5F2307C01C800178979 /* ___PROJECTNAME___ */,
+				C783648F30803249000D72CC /* ___PROJECTNAME___ */,
 			);
 			name = Indexing;
 			productName = Indexing;
-			productReference = C7EDD5F0307C01C800178979 /* libIndexing.a */;
+			productReference = C783648D30803249000D72CC /* libIndexing.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		C7EDD5E9307C01C800178979 /* Project object */ = {
+		C783648630803249000D72CC /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 2700;
 				LastUpgradeCheck = 2700;
 				TargetAttributes = {
-					C7EDD5ED307C01C800178979 = {
+					C783648A30803249000D72CC = {
 						CreatedOnToolsVersion = 27.0;
 					};
-					C7EDD5EF307C01C800178979 = {
+					C783648C30803249000D72CC = {
 						CreatedOnToolsVersion = 27.0;
 					};
 				};
 			};
-			buildConfigurationList = C7EDD5EC307C01C800178979 /* Build configuration list for PBXProject "___PROJECTNAME___" */;
+			buildConfigurationList = C783648930803249000D72CC /* Build configuration list for PBXProject "___PROJECTNAME___" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
 			);
-			mainGroup = C7EDD5E8307C01C800178979;
-			packageReferences = (
-				C7EDD617307C01C800178979 /* XCLocalSwiftPackageReference "Packages/___PROJECTNAME___Kit" */,
-			);
+			mainGroup = C783648530803249000D72CC;
 			minimizedProjectReferenceProxies = 1;
 			preferredProjectObjectVersion = 77;
-			productRefGroup = C7EDD5F1307C01C800178979 /* Products */;
+			productRefGroup = C783648E30803249000D72CC /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				C7EDD5ED307C01C800178979 /* ___PROJECTNAME___ */,
-				C7EDD5EF307C01C800178979 /* Indexing */,
+				C783648A30803249000D72CC /* ___PROJECTNAME___ */,
+				C783648C30803249000D72CC /* Indexing */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
-		C7EDD5EE307C01C800178979 /* Sources */ = {
+		C783648B30803249000D72CC /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			files = (
-				C7EDD5FE307C01C800178979 /* Firmware.swift in Sources */,
+				C78364A330803249000D72CC /* Firmware.swift in Sources */,
 			);
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		C7EDD5FF307C01C800178979 /* Debug configuration for PBXProject "___PROJECTNAME___" */ = {
+		C78364A630803249000D72CC /* Debug configuration for PBXNativeTarget "Indexing" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = CRU5YWAZ4Y;
+				EXCLUDED_SOURCE_FILE_NAMES = (
+					"\"$(SRCROOT)/___PROJECTNAME___/*\"",
+					"\"$(SRCROOT)/___PROJECTNAME___/*/*\"",
+					"\"$(SRCROOT)/___PROJECTNAME___/*/*/*\"",
+					"\"$(SRCROOT)/___PROJECTNAME___/*/*/*/*\"",
+					"\"$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*\"",
+					"\"$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*\"",
+					"\"$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*\"",
+					"\"$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*/*\"",
+					"\"$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*/*/*\"",
+					"\"$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*/*/*/*\"",
+					"\"$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*/*/*/*/*\"",
+					"\"$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*/*/*/*/*/*\"",
+					"\"$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*/*/*/*/*/*/*\"",
+					"\"$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*/*/*/*/*/*/*/*\"",
+					"\"$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*\"",
+					"\"$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*\"",
+					"*.c",
+					"*.cc",
+					"*.cpp",
+					"*.cxx",
+					"*.m",
+					"*.mm",
+					"*.s",
+					"*.S",
+				);
+				OTHER_SWIFT_FLAGS = "-parse-as-library -Xfrontend \"@$(PROJECT_DIR)/___PROJECTNAME___/.espswift/include-paths.rsp\"";
+				PRODUCT_NAME = Indexing;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_ENABLE_EMBEDDED = YES;
+				SWIFT_ENABLE_EXPLICIT_MODULES = NO;
+				SWIFT_INSTALL_MODULE_ABI_DESCRIPTOR = NO;
+				SWIFT_TARGET_TRIPLE = "riscv32-none-none-eabi";
+				SWIFT_VERSION = 6.0;
+				TOOLCHAINS = ESPSWIFT_SWIFT_TOOLCHAIN_ID;
+			};
+			name = Debug;
+		};
+		C78364A730803249000D72CC /* Release configuration for PBXNativeTarget "Indexing" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = CRU5YWAZ4Y;
+				EXCLUDED_SOURCE_FILE_NAMES = (
+					"\"$(SRCROOT)/___PROJECTNAME___/*\"",
+					"\"$(SRCROOT)/___PROJECTNAME___/*/*\"",
+					"\"$(SRCROOT)/___PROJECTNAME___/*/*/*\"",
+					"\"$(SRCROOT)/___PROJECTNAME___/*/*/*/*\"",
+					"\"$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*\"",
+					"\"$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*\"",
+					"\"$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*\"",
+					"\"$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*/*\"",
+					"\"$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*/*/*\"",
+					"\"$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*/*/*/*\"",
+					"\"$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*/*/*/*/*\"",
+					"\"$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*/*/*/*/*/*\"",
+					"\"$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*/*/*/*/*/*/*\"",
+					"\"$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*/*/*/*/*/*/*/*\"",
+					"\"$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*\"",
+					"\"$(SRCROOT)/___PROJECTNAME___/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*\"",
+					"*.c",
+					"*.cc",
+					"*.cpp",
+					"*.cxx",
+					"*.m",
+					"*.mm",
+					"*.s",
+					"*.S",
+				);
+				OTHER_SWIFT_FLAGS = "-parse-as-library -Xfrontend \"@$(PROJECT_DIR)/___PROJECTNAME___/.espswift/include-paths.rsp\"";
+				PRODUCT_NAME = Indexing;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_ENABLE_EMBEDDED = YES;
+				SWIFT_ENABLE_EXPLICIT_MODULES = NO;
+				SWIFT_INSTALL_MODULE_ABI_DESCRIPTOR = NO;
+				SWIFT_TARGET_TRIPLE = "riscv32-none-none-eabi";
+				SWIFT_VERSION = 6.0;
+				TOOLCHAINS = ESPSWIFT_SWIFT_TOOLCHAIN_ID;
+			};
+			name = Release;
+		};
+		C78364A830803249000D72CC /* Debug configuration for PBXProject "___PROJECTNAME___" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -228,7 +330,7 @@
 			};
 			name = Debug;
 		};
-		C7EDD600307C01C800178979 /* Release configuration for PBXProject "___PROJECTNAME___" */ = {
+		C78364A930803249000D72CC /* Release configuration for PBXProject "___PROJECTNAME___" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -281,7 +383,7 @@
 			};
 			name = Release;
 		};
-		C7EDD602307C01C800178979 /* Debug configuration for PBXLegacyTarget "___PROJECTNAME___" */ = {
+		C78364AB30803249000D72CC /* Debug configuration for PBXLegacyTarget "___PROJECTNAME___" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
@@ -290,111 +392,44 @@
 			};
 			name = Debug;
 		};
-		C7EDD603307C01C800178979 /* Release configuration for PBXLegacyTarget "___PROJECTNAME___" */ = {
+		C78364AC30803249000D72CC /* Release configuration for PBXLegacyTarget "___PROJECTNAME___" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = CRU5YWAZ4Y;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Release;
-		};
-		C7EDD605307C01C800178979 /* Debug configuration for PBXNativeTarget "Indexing" */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = CRU5YWAZ4Y;
-				EXCLUDED_SOURCE_FILE_NAMES = (
-					"*.c",
-					"*.cc",
-					"*.cpp",
-					"*.cxx",
-					"*.m",
-					"*.mm",
-					"*.s",
-					"*.S",
-				);
-				OTHER_SWIFT_FLAGS = "-parse-as-library \"@$(PROJECT_DIR)/___PROJECTNAME___/.espswift/swift-flags.rsp\"";
-				PRODUCT_NAME = Indexing;
-				SDKROOT = macosx;
-				SKIP_INSTALL = YES;
-				SWIFT_COMPILATION_MODE = wholemodule;
-				SWIFT_ENABLE_EMBEDDED = YES;
-				SWIFT_ENABLE_EXPLICIT_MODULES = NO;
-				SWIFT_INSTALL_MODULE_ABI_DESCRIPTOR = NO;
-				SWIFT_TARGET_TRIPLE = "riscv32-none-none-eabi";
-				SWIFT_VERSION = 6.0;
-				TOOLCHAINS = ESPSWIFT_SWIFT_TOOLCHAIN_ID;
-			};
-			name = Debug;
-		};
-		C7EDD606307C01C800178979 /* Release configuration for PBXNativeTarget "Indexing" */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = CRU5YWAZ4Y;
-				EXCLUDED_SOURCE_FILE_NAMES = (
-					"*.c",
-					"*.cc",
-					"*.cpp",
-					"*.cxx",
-					"*.m",
-					"*.mm",
-					"*.s",
-					"*.S",
-				);
-				OTHER_SWIFT_FLAGS = "-parse-as-library \"@$(PROJECT_DIR)/___PROJECTNAME___/.espswift/swift-flags.rsp\"";
-				PRODUCT_NAME = Indexing;
-				SDKROOT = macosx;
-				SKIP_INSTALL = YES;
-				SWIFT_COMPILATION_MODE = wholemodule;
-				SWIFT_ENABLE_EMBEDDED = YES;
-				SWIFT_ENABLE_EXPLICIT_MODULES = NO;
-				SWIFT_INSTALL_MODULE_ABI_DESCRIPTOR = NO;
-				SWIFT_TARGET_TRIPLE = "riscv32-none-none-eabi";
-				SWIFT_VERSION = 6.0;
-				TOOLCHAINS = ESPSWIFT_SWIFT_TOOLCHAIN_ID;
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
-/* Begin XCLocalSwiftPackageReference section */
-		C7EDD617307C01C800178979 /* XCLocalSwiftPackageReference "Packages/___PROJECTNAME___Kit" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = "Packages/___PROJECTNAME___Kit";
-		};
-/* End XCLocalSwiftPackageReference section */
-
 /* Begin XCConfigurationList section */
-		C7EDD5EC307C01C800178979 /* Build configuration list for PBXProject "___PROJECTNAME___" */ = {
+		C783648930803249000D72CC /* Build configuration list for PBXProject "___PROJECTNAME___" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				C7EDD5FF307C01C800178979 /* Debug configuration for PBXProject "___PROJECTNAME___" */,
-				C7EDD600307C01C800178979 /* Release configuration for PBXProject "___PROJECTNAME___" */,
+				C78364A830803249000D72CC /* Debug configuration for PBXProject "___PROJECTNAME___" */,
+				C78364A930803249000D72CC /* Release configuration for PBXProject "___PROJECTNAME___" */,
 			);
 			defaultConfigurationName = Release;
 		};
-		C7EDD601307C01C800178979 /* Build configuration list for PBXLegacyTarget "___PROJECTNAME___" */ = {
+		C78364A530803249000D72CC /* Build configuration list for PBXNativeTarget "Indexing" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				C7EDD602307C01C800178979 /* Debug configuration for PBXLegacyTarget "___PROJECTNAME___" */,
-				C7EDD603307C01C800178979 /* Release configuration for PBXLegacyTarget "___PROJECTNAME___" */,
+				C78364A630803249000D72CC /* Debug configuration for PBXNativeTarget "Indexing" */,
+				C78364A730803249000D72CC /* Release configuration for PBXNativeTarget "Indexing" */,
 			);
 			defaultConfigurationName = Release;
 		};
-		C7EDD604307C01C800178979 /* Build configuration list for PBXNativeTarget "Indexing" */ = {
+		C78364AA30803249000D72CC /* Build configuration list for PBXLegacyTarget "___PROJECTNAME___" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				C7EDD605307C01C800178979 /* Debug configuration for PBXNativeTarget "Indexing" */,
-				C7EDD606307C01C800178979 /* Release configuration for PBXNativeTarget "Indexing" */,
+				C78364AB30803249000D72CC /* Debug configuration for PBXLegacyTarget "___PROJECTNAME___" */,
+				C78364AC30803249000D72CC /* Release configuration for PBXLegacyTarget "___PROJECTNAME___" */,
 			);
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = C7EDD5E9307C01C800178979 /* Project object */;
+	rootObject = C783648630803249000D72CC /* Project object */;
 	validationLevel = 1;
 }
