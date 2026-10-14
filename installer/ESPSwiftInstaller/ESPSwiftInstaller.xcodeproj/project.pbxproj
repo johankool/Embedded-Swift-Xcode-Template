@@ -79,7 +79,7 @@
 			path = ../../scripts;
 			sourceTree = "<group>";
 		};
-		4E8C11EF2FCA582000E8565A /* ESP32-C6.xctemplate */ = {
+		4E8C11EF2FCA582000E8565A /* ESP32 RISC-V.xctemplate */ = {
 			isa = PBXGroup;
 			children = (
 				4E8C11E72FCA582000E8565A /* build.sh */,
@@ -91,13 +91,13 @@
 				4E8C11ED2FCA582000E8565A /* sdkconfig.defaults */,
 				4E8C11EE2FCA582000E8565A /* TemplateInfo.plist */,
 			);
-			path = "ESP32-C6.xctemplate";
+			path = "ESP32 RISC-V.xctemplate";
 			sourceTree = "<group>";
 		};
 		4E8C11F02FCA582000E8565A /* Xcode Template */ = {
 			isa = PBXGroup;
 			children = (
-				4E8C11EF2FCA582000E8565A /* ESP32-C6.xctemplate */,
+				4E8C11EF2FCA582000E8565A /* ESP32 RISC-V.xctemplate */,
 			);
 			name = "Xcode Template";
 			path = "../../Xcode Template";

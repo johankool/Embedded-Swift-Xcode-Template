@@ -1,6 +1,6 @@
 # Contributing to Embedded Swift Xcode Template
 
-Thank you for your interest in contributing! This project aims to make Embedded Swift development on ESP32-C6 as approachable as possible — contributions of all kinds are welcome.
+Thank you for your interest in contributing! This project aims to make Embedded Swift development on ESP32 as approachable as possible — contributions of all kinds are welcome.
 
 ## Ways to Contribute
 
@@ -35,14 +35,31 @@ git checkout -b feat/your-feature-name
 git checkout -b fix/your-bug-fix
 ```
 
-### 4. Make your changes, then commit
+### 4. Make your changes and test them
+
+If you changed the template, a script in `scripts/` or `install.sh`, build a project from the template for every chip it offers:
+
+```bash
+bash tests/test_template.sh            # all chips
+bash tests/test_template.sh esp32c6    # one chip
+```
+
+It creates each project the way Xcode does and builds it with the ESP-IDF and Swift toolchain `install.sh` installed (run `install.sh` first). Each chip takes about half a minute. GitHub Actions runs the same test for every pull request, after installing everything with `install.sh` on a fresh macOS runner.
+
+The test doesn't cover Xcode or hardware, so for changes there, also check by hand:
+- After running `install.sh` and restarting Xcode, **ESP32 RISC-V** appears under File → New → Project → Other, with the **Chip** pop-up.
+- A new project's `sdkconfig.defaults` has the chip you picked, and `README.md` sits next to the `.xcodeproj`.
+- `Cmd+B` builds without flashing, and `Cmd+R` flashes your board and shows its serial output.
+- After that first build, code completion works in `Firmware/Firmware.swift` (e.g. typing `led_strip_` or `blinkStep`), `Cmd+U` runs the Kit package's tests, and Command-clicking `vTaskDelay` opens FreeRTOS's `task.h`.
+
+### 5. Commit
 
 ```bash
 git add .
 git commit -m "feat: describe what you did"
 ```
 
-### 5. Push and open a Pull Request
+### 6. Push and open a Pull Request
 
 ```bash
 git push origin feat/your-feature-name
@@ -54,14 +71,28 @@ Then open a PR on GitHub against the `main` branch.
 
 ## Project Structure
 
+```
 Embedded-Swift-Xcode-Template/
 ├── install.sh                        # Main setup script
+├── uninstall.sh                      # Removes what install.sh installed
+├── tests/
+│   └── test_template.sh             # Builds the template for every chip
+├── .github/workflows/
+│   └── build-template.yml           # Runs install.sh and the test in CI
 ├── scripts/
-│   ├── detect_port.sh               # Auto-detects connected ESP32-C6
+│   ├── build.sh                     # Builds a project (each project's build.sh calls it)
+│   ├── build_package.py             # Builds a project's Swift package with SwiftPM
+│   ├── filter_build_output.sh       # Turns ESP-IDF's build output into Xcode issues
+│   ├── run.sh                       # Cmd+R: flashes the last build, then starts the monitor
+│   ├── debug.sh                     # Debugs the firmware on the board with LLDB
+│   ├── detect_port.sh               # Auto-detects the connected board
 │   ├── flash.sh                     # Flashes firmware via idf.py
 │   ├── monitor.sh                   # Streams serial output
 │   ├── monitor_wrapper.c            # Native binary wrapper for Xcode
 │   ├── setup_scheme.sh              # Auto-configures Xcode Run scheme
+│   ├── setup_indexing.sh            # Compiler settings for code completion
+│   ├── indexing_flags.py            # (with SwiftPM's flags for the package)
+│   ├── update_project.sh            # Updates projects created from an older template
 │   └── add_library.sh               # Adds ESP-IDF component libraries
 ├── installer/
 │   ├── build_pkg.sh                 # Builds .pkg installer
@@ -69,16 +100,27 @@ Embedded-Swift-Xcode-Template/
 │   ├── scripts/postinstall          # .pkg post-install script
 │   └── ESPSwiftInstaller/           # SwiftUI installer app
 └── Xcode Template/
-└── ESP32-C6.xctemplate/
+└── ESP32 RISC-V.xctemplate/
 ├── TemplateInfo.plist
+├── README.md
 ├── build.sh
+├── scheme.xcscheme
 ├── CMakeLists.txt
 ├── sdkconfig.defaults
-└── main/
-├── CMakeLists.txt
-├── idf_component.yml
-├── BridgingHeader.h
-└── main.swift
+├── main/
+│   ├── CMakeLists.txt
+│   ├── idf_component.yml
+│   └── swift_flags.c
+├── Firmware/
+│   ├── Firmware.swift
+│   ├── Package.swift
+│   ├── ESPIDF/include/ESPIDF.h
+│   └── ESPIDF/ESPIDF.c
+└── Kit/                     # Packages/<Project>Kit
+    ├── Package.swift
+    ├── Sources/Blink/Blink.swift
+    └── Tests/BlinkTests/BlinkTests.swift
+```
 
 ---
 
@@ -114,7 +156,7 @@ When opening a bug report, please include:
 
 - macOS version
 - Xcode version
-- ESP32-C6 board model
+- Board model and chip (e.g. ESP32-C6-DevKitC-1)
 - USB interface (native USB-CDC / CH340 / CP210x)
 - Steps to reproduce
 - Expected vs actual behavior
@@ -125,7 +167,7 @@ When opening a bug report, please include:
 ## Hardware Requirements for Testing
 
 To fully test this project you need:
-- An ESP32-C6 development board
+- A development board with a RISC-V based ESP32 chip, such as the ESP32-C6
 - USB cable (USB-C or Micro-USB depending on board)
 - macOS 12+ with Xcode 15+
 
@@ -142,7 +184,6 @@ Before contributing, it helps to know the current limitations:
 
 - Embedded Swift is experimental — not all Swift standard library features work
 - Xcode's debug console is read-only (no serial input)
-- Scheme auto-generation requires closing/reopening the project after first build ([#3](https://github.com/letstakeabreak/Embedded-Swift-Xcode-Template/issues/3))
 
 See all open issues: [GitHub Issues](https://github.com/letstakeabreak/Embedded-Swift-Xcode-Template/issues)
 

@@ -22,8 +22,10 @@ struct WelcomeView: View {
         FileManager.default.fileExists(atPath: "/usr/bin/git")
     }
     
+    // Homebrew lives in /opt/homebrew on Apple silicon and /usr/local on Intel.
     private var hasHomebrew: Bool {
-        FileManager.default.fileExists(atPath: "/opt/homebrew/bin/brew")
+        ["/opt/homebrew/bin/brew", "/usr/local/bin/brew"]
+            .contains { FileManager.default.fileExists(atPath: $0) }
     }
     
     private var canInstall: Bool {
@@ -39,11 +41,11 @@ struct WelcomeView: View {
                     .font(.system(size: 52))
                     .foregroundColor(.accentColor)
                 
-                Text("Embedded Swift for ESP32-C6")
+                Text("Embedded Swift for ESP32")
                     .font(.title2)
                     .fontWeight(.semibold)
                 
-                Text("This installer will set up everything you need to write ESP32-C6 firmware in Swift using Xcode.")
+                Text("This installer will set up everything you need to write ESP32 firmware in Swift using Xcode.")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
@@ -70,7 +72,7 @@ struct WelcomeView: View {
                 )
                 RequirementRow(
                     title: "Homebrew",
-                    detail: "Recommended for Python 3",
+                    detail: "Installs Python 3.10+, CMake and Ninja if missing",
                     isMet: hasHomebrew,
                     isRequired: false
                 )

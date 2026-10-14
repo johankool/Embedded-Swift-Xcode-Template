@@ -4,7 +4,7 @@
 # ESPSwift Template installer script.
 
 # This script sets up the complete development environment for
-# Embedded Swift on ESP32-C6, including ESP-IDF and the Embedded
+# Embedded Swift on RISC-V based ESP32 chips, including ESP-IDF and the Embedded
 # Swift toolchain. All tools are installed under ~/.espswift. to
 # ensure a predictable, isolated path that the Xcode build scripts
 # can always rely on.
@@ -26,6 +26,28 @@ ESPSWIFT_HOME="$HOME/.espswift"
 # ESP-IDF will be cloned into this subdirectory.
 IDF_PATH="$ESPSWIFT_HOME/esp-idf"
 
+# The ESP-IDF release to install. Pinned to a stable release tag so
+# every install gets the same, tested version; cloning without a tag
+# would give whatever ESP-IDF's master branch is on that day.
+# Releases: https://github.com/espressif/esp-idf/releases
+IDF_VERSION="v6.1"
+
+# The Swift release to install. Embedded Swift for RISC-V ships with the
+# swift.org release toolchains, so a development snapshot is not needed.
+# (Xcode's own toolchain cannot be used: it does not include the Embedded
+# Swift standard library.)
+# Releases: https://www.swift.org/install/macos/
+SWIFT_VERSION="6.4.0"
+SWIFT_TOOLCHAIN="$HOME/Library/Developer/Toolchains/swift-$SWIFT_VERSION-RELEASE.xctoolchain"
+
+# The Python version for ESP-IDF. ESP-IDF sets up its Python environment for
+# one Python version and later finds it by the version of the first python3
+# on PATH, so when Homebrew's python3 moves to a newer release, builds can no
+# longer find the environment. Pin it, like ESP-IDF and Swift: install.sh and
+# the build scripts use $ESPSWIFT_HOME/python/bin, where python3 is this one.
+PYTHON_VERSION="3.14"
+PYTHON_BIN="$ESPSWIFT_HOME/python/bin"
+
 # ESP-IDF's own tool installer (xtensa toolchain, openocd, etc.)
 # will place binaries here instead of the default ~/.espressif/.
 # IDF_TOOLS_PATH="$ESPSWIFT_HOME/tools"
@@ -37,6 +59,45 @@ echo "Starting ESPSwift installation..."
 # Create the root directory if it does not exist.
 mkdir -p "$ESPSWIFT_HOME"
 
+# ---- Prerequisites ----
+
+# Check for the tools ESP-IDF needs before downloading anything, so a
+# missing tool is reported up front instead of after a large download.
+#   - Python $PYTHON_VERSION (see PYTHON_VERSION above)
+#   - CMake and Ninja (ESP-IDF expects them from Homebrew on macOS)
+# Homebrew is added to PATH explicitly, for Apple silicon and Intel Macs.
+export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+
+MISSING_FORMULAE=()
+if ! command -v "python$PYTHON_VERSION" &>/dev/null; then
+    MISSING_FORMULAE+=("python@$PYTHON_VERSION")
+fi
+if ! command -v cmake &>/dev/null; then
+    MISSING_FORMULAE+=(cmake)
+fi
+if ! command -v ninja &>/dev/null; then
+    MISSING_FORMULAE+=(ninja)
+fi
+
+if [ ${#MISSING_FORMULAE[@]} -gt 0 ]; then
+    if command -v brew &>/dev/null; then
+        echo "Installing ${MISSING_FORMULAE[*]} via Homebrew..."
+        brew install "${MISSING_FORMULAE[@]}"
+    else
+        echo "Error: ESP-IDF needs Python $PYTHON_VERSION, CMake and Ninja." >&2
+        echo "Missing: ${MISSING_FORMULAE[*]}" >&2
+        echo "Install Homebrew from https://brew.sh and run this script again," >&2
+        echo "or install the missing tools yourself and make sure they are on PATH." >&2
+        exit 1
+    fi
+fi
+
+# Make python3 mean Python $PYTHON_VERSION for ESP-IDF, here and in the
+# build scripts.
+mkdir -p "$PYTHON_BIN"
+ln -sfn "$(command -v "python$PYTHON_VERSION")" "$PYTHON_BIN/python3"
+export PATH="$PYTHON_BIN:$PATH"
+
 # ---- Step 1 : ESP-IDF ----
 
 echo "[1/4] Installing ESP-IDF..."
@@ -44,62 +105,83 @@ echo "[1/4] Installing ESP-IDF..."
 if [ -d "$IDF_PATH" ]; then
     # Skip cloning if ESP-IDF is already present.
     # The user can run this script again safely without re-downloading.
-    echo "ESP-IDF already installed. Skipping."
+    # An existing installation is never replaced automatically, but
+    # warn if it is not the pinned release (e.g. an older install that
+    # cloned master).
+    INSTALLED_IDF_VERSION=$(git -C "$IDF_PATH" describe --tags 2>/dev/null || echo "unknown")
+    if [ "$INSTALLED_IDF_VERSION" = "$IDF_VERSION" ]; then
+        echo "ESP-IDF $IDF_VERSION already installed. Skipping."
+    else
+        echo "Warning: ESP-IDF at $IDF_PATH is $INSTALLED_IDF_VERSION, not $IDF_VERSION." >&2
+        echo "To switch, remove it with 'rm -rf $IDF_PATH' and run this script again." >&2
+    fi
 else
-    # Clone ESP-IDF with all submodules.
+    # Clone the pinned ESP-IDF release with all submodules.
     # --recursive is required because ESP-IDF depends on several
     # git submodules (mbedtls, esp-mqtt, etc.).
-    git clone --recursive https://github.com/espressif/esp-idf.git "$IDF_PATH"
-    
-    # Install only the ESP32-C6 target to minimize download size.
-    # Passing IDF_TOOLS_PATH redirects all binaries to ~/.espswift/tools/
-    # instead of the default ~/.espressif/.
-    # export IDF_TOOLS_PATH="$IDF_TOOLS_PATH"
-    "$IDF_PATH/install.sh" esp32c6
-
-    echo "ESP-IDF installed successfully."
+    # --depth 1 and --shallow-submodules skip the git history, which
+    # is not needed to build and makes the download much smaller.
+    git clone --recursive --branch "$IDF_VERSION" --depth 1 --shallow-submodules \
+        https://github.com/espressif/esp-idf.git "$IDF_PATH"
 fi
 
+# Install ESP-IDF's tools and its Python environment for Python
+# $PYTHON_VERSION. This also runs when ESP-IDF was already installed: it only
+# installs what's missing, such as the environment after an install made
+# with another Python version.
+# Only the tools for the RISC-V chips the template supports are installed
+# (Embedded Swift doesn't support the Xtensa chips), which keeps the
+# download small. They all share the same RISC-V compiler.
+# Passing IDF_TOOLS_PATH redirects all binaries to ~/.espswift/tools/
+# instead of the default ~/.espressif/.
+# export IDF_TOOLS_PATH="$IDF_TOOLS_PATH"
+"$IDF_PATH/install.sh" esp32c2,esp32c3,esp32c5,esp32c6,esp32c61,esp32h2,esp32p4
 
-# ---- Step 2: Embedded Swift Toolchain (via swiftly) ----
+echo "ESP-IDF installed successfully."
 
-echo "[2/4] Installing Embedded Swift toolchain..."
 
-# swiftly is the official Swift toolchain installer and manager.
-# We use it instead of manually downloading snapshot tarballs,
-# so that toolchain updates are handled cleanly in the future.
-SWIFTLY_BIN="$HOME/.swiftly/bin/swiftly"
+# ---- Step 2: Embedded Swift Toolchain ----
 
-if ! command -v "$SWIFTLY_BIN" &>/dev/null; then
-    echo "swiftly not found. Installing swiftly..."
+echo "[2/4] Installing Swift $SWIFT_VERSION toolchain..."
 
-    # Download the official swiftly pkg installer from swift.org.
-    curl -L https://download.swift.org/swiftly/darwin/swiftly.pkg -o /tmp/swiftly.pkg
+if [ -x "$SWIFT_TOOLCHAIN/usr/bin/swiftc" ]; then
+    echo "Swift $SWIFT_VERSION already installed. Skipping."
+else
+    # Use swiftly, the Swift toolchain manager, if the user has it (installed
+    # by swift.org's installer in ~/.swiftly, or via Homebrew), so the
+    # toolchain shows up in `swiftly list` alongside their others.
+    # Without --use, swiftly installs the toolchain without changing which
+    # toolchain is active.
+    SWIFTLY_BIN=$(command -v swiftly || true)
+    if [ -z "$SWIFTLY_BIN" ] && [ -x "$HOME/.swiftly/bin/swiftly" ]; then
+        SWIFTLY_BIN="$HOME/.swiftly/bin/swiftly"
+    fi
 
-    # Install swiftly into the current user's home directory.
-    # -target CurrentUserHomeDirectory installs to ~/swiftly/
-    # without requiring sudo.
-    installer -pkg /tmp/swiftly.pkg -target CurrentUserHomeDirectory
+    if [ -n "$SWIFTLY_BIN" ]; then
+        echo "Installing with swiftly ($SWIFTLY_BIN)..."
+        "$SWIFTLY_BIN" install "$SWIFT_VERSION" --assume-yes
+    else
+        # Otherwise download swift.org's toolchain installer and install it
+        # into ~/Library/Developer/Toolchains, which needs no sudo.
+        echo "Downloading Swift $SWIFT_VERSION from swift.org..."
+        SWIFT_PKG_DIR=$(mktemp -d)
+        SWIFT_PKG="$SWIFT_PKG_DIR/swift-$SWIFT_VERSION-RELEASE-osx.pkg"
+        curl -fL "https://download.swift.org/swift-$SWIFT_VERSION-release/xcode/swift-$SWIFT_VERSION-RELEASE/swift-$SWIFT_VERSION-RELEASE-osx.pkg" -o "$SWIFT_PKG"
+        installer -pkg "$SWIFT_PKG" -target CurrentUserHomeDirectory
+        rm -rf "$SWIFT_PKG_DIR"
+    fi
 
-    # Clean up the downloaded pkg.
-    rm /tmp/swiftly.pkg
+    if [ ! -x "$SWIFT_TOOLCHAIN/usr/bin/swiftc" ]; then
+        echo "Error: Swift $SWIFT_VERSION was not installed at $SWIFT_TOOLCHAIN" >&2
+        exit 1
+    fi
 
-    echo "swiftly installed successfully."
+    echo "Swift $SWIFT_VERSION installed successfully."
 fi
 
-# Initialize swiftly without installing the latest release toolchain.
-# --skip-install avoids downloading the stable release toolchain,
-# since Embedded Swift requires a development snapshot, not a release.
-# --no-modify-profile prevents swiftly from editing ~/.zshrc or ~/.bashrc,
-# as we manage PATH ourselevs in this script.
-"$SWIFTLY_BIN" init --skip-install --no-modify-profile --assume-yes
-
-# Install the latest main development snapshot.
-# Embedded Swift is not yet available in stable releases,
-# so we must use a main-snapshot toolchain (Swift 6.2 dev or later).
-"$SWIFTLY_BIN" install main-snapshot
-
-echo "Embedded Swift toolchain installed successfully."
+# Record which toolchain to use. build.sh and the project's CMakeLists.txt
+# read this file, so projects follow the toolchain install.sh installed.
+echo "$SWIFT_TOOLCHAIN" > "$ESPSWIFT_HOME/swift-toolchain"
 
 # ---- Step 3: Install Xcode Template ----
 
@@ -108,27 +190,57 @@ echo "[3/4] Installing Xcode template..."
 # The directory where Xcode looks for custom project templates.
 XCODE_TEMPLATES_DIR="$HOME/Library/Developer/Xcode/Templates/Project Templates/Other"
 XCODE_BUILTIN_TEMPLATE="/Applications/Xcode.app/Contents/Developer/Library/Xcode/Templates/Project Templates/Other/External Build System.xctemplate"
-TARGET_TEMPLATE="$XCODE_TEMPLATES_DIR/ESP32-C6.xctemplate"
+TARGET_TEMPLATE="$XCODE_TEMPLATES_DIR/ESP32 RISC-V.xctemplate"
 
 # Create the directory if it does not exist.
 # This is common on fresh macOS installations where Xcode Templates
 # have never been customized before.
 mkdir -p "$XCODE_TEMPLATES_DIR"
 
+# The template used to be called ESP32-C6 and supported only that chip.
+# Remove it, so Xcode doesn't offer both.
+rm -rf "$XCODE_TEMPLATES_DIR/ESP32-C6.xctemplate"
+
 # Start from Xcode's built-in External Build System template,
 # which already has the correct Targets, Options, and Image keys.
 # We'll then overlay our customizations on top.
-cp -R "$XCODE_BUILTIN_TEMPLATE" "$TARGET_TEMPLATE"
+# Copy the template's contents ("/.") rather than the folder itself: when
+# the template is already installed, copying the folder would nest it
+# inside the existing one instead of updating it.
+cp -R "$XCODE_BUILTIN_TEMPLATE/." "$TARGET_TEMPLATE"
 
 # Overlay our custom files (main.swift) and overwrite TemplateInfo.plist.
 # -R copies the directory recursively.
 # Existing files will be overwritten, so re-running install.sh
 # always gives the user the latest version of the template.
-cp -R "$(dirname "$0")/Xcode Template/ESP32-C6.xctemplate/"* "$TARGET_TEMPLATE/"
+cp -R "$(dirname "$0")/Xcode Template/ESP32 RISC-V.xctemplate/"* "$TARGET_TEMPLATE/"
 
 # Grant execute permission to build.sh so Xcode can run it.
 # cp -R does not always preserve execute permissions.
 chmod +x "$TARGET_TEMPLATE/build.sh"
+
+# The template's Indexing target (used for code completion) must name the
+# Swift toolchain by its identifier, which includes the build date, so fill
+# it in here. Projects keep the toolchain they were created with.
+# (An alias toolchain with a fixed identifier would avoid that, but any extra
+# toolchain whose usr/ links to another breaks Xcode's code completion.)
+SWIFT_TOOLCHAIN_ID=$(/usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$SWIFT_TOOLCHAIN/Info.plist")
+python3 - "$TARGET_TEMPLATE/TemplateInfo.plist" "$SWIFT_TOOLCHAIN_ID" <<'EOF'
+import plistlib, sys
+path, toolchain_id = sys.argv[1:]
+with open(path, "rb") as f:
+    template = plistlib.load(f)
+for target in template["Targets"]:
+    settings = target.get("SharedSettings", {})
+    if settings.get("TOOLCHAINS") == "ESPSWIFT_SWIFT_TOOLCHAIN_ID":
+        settings["TOOLCHAINS"] = toolchain_id
+with open(path, "wb") as f:
+    plistlib.dump(template, f, sort_keys=True)
+EOF
+
+# The template's Run scheme (Cmd+R) starts the monitor binary installed
+# below, which needs an absolute path.
+sed -i '' "s|ESPSWIFT_MONITOR_PATH|$ESPSWIFT_HOME/scripts/monitor|" "$TARGET_TEMPLATE/scheme.xcscheme"
 
 echo "Xcode Template installed successfully."
 
@@ -138,16 +250,17 @@ echo "[4/4] Installing helper scripts..."
 
 # Copy all helper scripts (detect_port.sh, flash.sh, monitor.sh, setup_scheme.sh) into ~/.espswift/scripts/
 # so that the Xcode build script (build.sh) can call them via a known path.
-# These scripts are responsible for finding the connected ESP32-C6,
+# These scripts are responsible for finding the connected board,
 # flashing the compiled binary to it, and reading the serial output.
 mkdir -p "$ESPSWIFT_HOME/scripts"
-cp "$(dirname "$0")/scripts/"*.sh "$ESPSWIFT_HOME/scripts/"
+cp "$(dirname "$0")/scripts/"*.sh "$(dirname "$0")/scripts/"*.py "$ESPSWIFT_HOME/scripts/"
 chmod +x "$ESPSWIFT_HOME/scripts/"*.sh
 
 # Compile the monitor wrapper binary. Xcode's Scheme > Run > Executable
 # only accepts native Mach-O binaries, not shell scripts. This tiny C
-# wrapper does nothing but execve() into monitor.sh, satisfying Xcode's
-# requirement while keeping the actual logic in shell.
+# wrapper does nothing but execve() into run.sh (which flashes the board,
+# then starts monitor.sh), satisfying Xcode's requirement while keeping
+# the actual logic in shell.
 echo "Compiling monitor wrapper binary..."
 clang -o "$ESPSWIFT_HOME/scripts/monitor" "$(dirname "$0")/scripts/monitor_wrapper.c"
 chmod +x "$ESPSWIFT_HOME/scripts/monitor"
@@ -158,4 +271,4 @@ echo "Helper scripts installed successfully."
 
 echo ""
 echo "Installation complete."
-echo "Restart Xcode and create a new project to use the ESP32-C6 Embedded Swift template."
+echo "Restart Xcode and create a new project to use the ESP32 RISC-V Embedded Swift template."

@@ -1,7 +1,12 @@
 #!/bin/bash
 
 # setup_scheme.sh
-# Creates a properly configured Xcode scheme file for an ESP32-C6 project.
+# Creates a properly configured Xcode scheme file for an ESP32 project.
+#
+# New projects get this scheme from the template (scheme.xcscheme), so it's
+# there when the project is first opened. This script creates it for
+# projects made before the template included it. Xcode only picks up a
+# scheme created this way after the project is closed and reopened (#3).
 #
 # By default, Xcode generates schemes lazily — they only get written to disk
 # when the user explicitly modifies them via Manage Schemes. For a smooth
@@ -10,8 +15,8 @@
 #
 # The scheme tells Xcode:
 #   - On Build: invoke the project's build.sh (via Legacy Target)
-#   - On Run (Cmd+R): launch ~/.espswift/scripts/monitor
-#     which streams ESP32-C6 serial output to the Xcode console
+#   - On Run (Cmd+R): launch ~/.espswift/scripts/monitor, which flashes
+#     the board and streams its serial output to the Xcode console
 #
 # Usage: bash setup_scheme.sh <project_directory> <project_name>
 #

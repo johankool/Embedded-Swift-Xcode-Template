@@ -1,0 +1,60 @@
+# Installs ESPSwift with install.sh and builds a project from the Xcode
+# template for every chip the template offers, using tests/test_template.sh.
+#
+# This checks install.sh (on a runner without swiftly, so it installs Swift
+# from swift.org's .pkg) and that the template builds for each chip. It does
+# not check Xcode itself or flashing.
+#
+# Everything runs in one job, so ESP-IDF and Swift are downloaded and
+# installed once; the test then builds the chips one after another.
+
+name: Build template
+
+# Skip runs for changes to documentation only (Markdown files), except in
+# the Xcode template, whose README the test checks for unfilled placeholders.
+# Later patterns override earlier ones.
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**'
+      - '!**.md'
+      - 'Xcode Template/**'
+  pull_request:
+    paths:
+      - '**'
+      - '!**.md'
+      - 'Xcode Template/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build template
+    # Xcode 27: the template's Indexing target (code completion) is only
+    # verified with it. The default macOS runner has Xcode 26.
+    runs-on: xcode-27
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install ESPSwift
+        run: bash install.sh
+
+      # Builds every chip in the template's Chip pop-up.
+      - name: Build the template for every chip
+        run: bash tests/test_template.sh --work-dir "$RUNNER_TEMP/template-test"
+
+      - name: Upload build logs
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: build-logs
+          path: ${{ runner.temp }}/template-test/*.log
+          if-no-files-found: ignore

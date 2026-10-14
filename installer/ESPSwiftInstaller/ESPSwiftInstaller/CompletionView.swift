@@ -30,7 +30,7 @@ struct CompletionView: View {
                     .font(.title2)
                     .fontWeight(.semibold)
                 
-                Text("You're ready to write ESP32-C6 firmware in Swift.")
+                Text("You're ready to write ESP32 firmware in Swift.")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
@@ -50,15 +50,15 @@ struct CompletionView: View {
                 )
                 NextStepRow(
                     number: "2",
-                    text: "Select the ESP32-C6 template under Other"
+                    text: "Select the ESP32 RISC-V template under Other"
                 )
                 NextStepRow(
                     number: "3",
-                    text: "Connect your ESP32-C6 board via USB"
+                    text: "Connect your ESP32 board via USB"
                 )
                 NextStepRow(
                     number: "4",
-                    text: "Press ⌘B to build and flash automatically"
+                    text: "Press ⌘R to build, flash and see the output"
                 )
             }
             .padding(.horizontal, 64)

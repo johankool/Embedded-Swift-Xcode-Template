@@ -6,13 +6,12 @@
 
 # ESP-IDF build artifacts
 build/
-sdkconfig
-sdkconfig.old
 
 # Xcode
 *.xcuserstate
 xcuserdata/
 DerivedData/
+
 # Installer build artifacts
 installer/build/
 installer/*.pkg
