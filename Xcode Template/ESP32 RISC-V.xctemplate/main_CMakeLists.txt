@@ -1,39 +1,49 @@
 # Component CMakeLists.txt for the main ESP-IDF component.
-# Configures Embedded Swift compilation via the idf_swift component.
+#
+# The project's Swift code is a Swift package (Package.swift and Sources/,
+# next to the Xcode project). SwiftPM builds it as a step of this build,
+# into a library that is linked into the firmware.
 
-if(WIN32)
-    set(devnull NUL)
+idf_build_get_property(arch IDF_TARGET_ARCH)
+if("${arch}" STREQUAL "xtensa")
+    idf_build_get_property(target IDF_TARGET)
+    message(FATAL_ERROR "Embedded Swift doesn't support Xtensa chips such as the ${target}; choose a RISC-V chip (ESP32-C2, C3, C5, C6, C61, H2 or P4) in sdkconfig.defaults.")
+endif()
+
+# swift_flags.c is empty. Its compile command provides the C flags (ESP-IDF's
+# include paths and definitions) with which Swift imports ESP-IDF's headers.
+# Without REQUIRES, the main component uses every component in the build,
+# including libraries added with add_library.sh.
+idf_component_register(SRCS swift_flags.c)
+
+idf_build_get_property(BUILD_DIR BUILD_DIR)
+idf_build_get_property(PYTHON PYTHON)
+if(DEFINED ENV{ESPSWIFT_SCRIPTS})
+    set(ESPSWIFT_SCRIPTS "$ENV{ESPSWIFT_SCRIPTS}")
 else()
-    set(devnull /dev/null)
+    set(ESPSWIFT_SCRIPTS "$ENV{HOME}/.espswift/scripts")
 endif()
+set(SWIFT_LIBRARY "${CMAKE_CURRENT_BINARY_DIR}/libFirmware.a")
 
-idf_component_register(
-    SRCS ${devnull}
-    PRIV_INCLUDE_DIRS "."
-    PRIV_REQUIRES idf_swift
+# Builds the Swift package on every build; SwiftPM decides what to rebuild.
+add_custom_target(swift_package
+    COMMAND "${PYTHON}" "${ESPSWIFT_SCRIPTS}/build_package.py"
+        "${BUILD_DIR}" "${CMAKE_CURRENT_LIST_DIR}/swift_flags.c"
+        "${CMAKE_CURRENT_LIST_DIR}/../.." "${ESPSWIFT_SWIFT_BIN_DIR}" "${SWIFT_LIBRARY}"
+        ${CMAKE_C_IMPLICIT_INCLUDE_DIRECTORIES}
+    # Swift's module hash section isn't needed in the firmware.
+    COMMAND "${CMAKE_OBJCOPY}" --remove-section .swift_modhash "${SWIFT_LIBRARY}"
+    BYPRODUCTS "${SWIFT_LIBRARY}"
+    COMMENT "Building the Swift package"
+    USES_TERMINAL
+    VERBATIM
 )
+add_dependencies(${COMPONENT_LIB} swift_package)
 
-# The Swift code lives in the Sources folder next to the Xcode project
-# (outside this ESP-IDF folder). Every .swift file in it, including in
-# subfolders, is compiled; CONFIGURE_DEPENDS picks up added and removed
-# files on the next build.
-file(GLOB_RECURSE SWIFT_SOURCES CONFIGURE_DEPENDS
-    "${CMAKE_CURRENT_LIST_DIR}/../../Sources/*.swift")
-
-idf_component_register_swift(
-    ${COMPONENT_LIB}
-    BRIDGING_HEADER ${CMAKE_CURRENT_LIST_DIR}/BridgingHeader.h
-    SRCS ${SWIFT_SOURCES}
-)
-
-# Remove compiler flags that are not supported by the Swift compiler.
-get_target_property(_swift_flags ${COMPONENT_LIB} COMPILE_OPTIONS)
-if(_swift_flags)
-    list(FILTER _swift_flags EXCLUDE REGEX "gdwarf|ggdb")
-    set_target_properties(${COMPONENT_LIB} PROPERTIES COMPILE_OPTIONS "${_swift_flags}")
-endif()
-
-# Debug information for the Swift code, so the debugger (debug.sh) can show
-# Swift source lines and variables. It's only in the .elf file, not in the
-# firmware that gets flashed.
-target_compile_options(${COMPONENT_LIB} PRIVATE "$<$<COMPILE_LANGUAGE:Swift>:-g>")
+# The Swift library is linked as a whole: nothing in ESP-IDF refers to the
+# Swift code until app_main is linked, so the linker would otherwise skip
+# it. As a link option it comes before ESP-IDF's libraries, which provide
+# what the Swift code uses.
+target_link_options(${COMPONENT_LIB} INTERFACE
+    "LINKER:--whole-archive,${SWIFT_LIBRARY},--no-whole-archive")
+set_property(TARGET ${COMPONENT_LIB} APPEND PROPERTY INTERFACE_LINK_DEPENDS "${SWIFT_LIBRARY}")

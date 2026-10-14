@@ -16,26 +16,36 @@ Errors and warnings from the build, in Swift, C, `CMakeLists.txt` and `sdkconfig
 
 ## What's in this project
 
+Your Swift code is a Swift package: `Package.swift` describes it, and ESP-IDF builds it (with the Swift Package Manager) into the firmware.
+
 ```
 ___PROJECTNAME___/
 ├── README.md                 # This file
 ├── ___PROJECTNAME___.xcodeproj
-├── Sources/                  # Your Swift code
-│   └── main.swift            # Your firmware code starts here
+├── Package.swift             # Your Swift code's targets, and the Swift packages it uses
+├── Sources/
+│   ├── Firmware/
+│   │   └── Firmware.swift    # Your firmware code starts here (app_main)
+│   ├── ESPIDF/include/
+│   │   └── ESPIDF.h          # ESP-IDF's C APIs for Swift: `import ESPIDF`
+│   └── Blink/
+│       └── Blink.swift       # Plain Swift, without ESP-IDF: testable on the Mac
+├── Tests/
+│   └── BlinkTests/           # Tests for Blink, run on the Mac with `swift test`
 └── ___PROJECTNAME___/         # The ESP-IDF project (the "source folder")
     ├── build.sh              # Run by Xcode on Cmd+B: calls ESPSwift's build script
     ├── CMakeLists.txt        # ESP-IDF project file
     ├── sdkconfig.defaults    # The chip and your ESP-IDF settings
     ├── sdkconfig             # Full ESP-IDF settings, created on first build
-    ├── compile_commands.json # Compiler settings for code completion, created by every build
-    ├── .espswift/            # The same for Xcode's Indexing target (hidden)
+    ├── .espswift/            # Compiler settings for code completion, created by every build (hidden)
     └── main/
-        ├── BridgingHeader.h  # C headers that Swift can use
-        ├── idf_component.yml # Libraries this project depends on
-        └── CMakeLists.txt    # Compiles every .swift file in Sources/
+        ├── idf_component.yml # ESP-IDF libraries this project depends on
+        └── CMakeLists.txt    # Builds the Swift package and links it into the firmware
 ```
 
-To add a Swift file, create it in `Sources/` (also in a subfolder), and tick the **Indexing** target in the dialog for the new file so it gets code completion (see below). It's compiled into your firmware on the next `Cmd+B`; there's no list of files to update.
+To add a Swift file, create it in a folder in `Sources/`, such as `Sources/Firmware/`, and tick the **Indexing** target in the dialog for the new file so it gets code completion (see below). It's compiled into your firmware on the next `Cmd+B`; there's no list of files to update.
+
+The `Firmware` target is the firmware itself: `app_main` and the code that uses ESP-IDF. Code that doesn't need ESP-IDF, like the blink pattern in `Blink`, can go in targets of its own, which you can test on the Mac (see below). To add one, create a folder for it in `Sources/` and add it to `Package.swift`, next to `Blink`.
 
 Xcode keeps the build output in DerivedData, like any other Xcode project. **Product ▸ Show Build Folder in Finder** takes you there.
 
@@ -45,9 +55,27 @@ Code completion, jump to definition (Command-click) and inline errors work for y
 
 This is what the project's second target, **Indexing**, is for. Xcode doesn't index the main target, because ESP-IDF builds it, so it indexes the Indexing target instead. You never need to build it or choose its scheme.
 
-The Indexing target contains the Swift files in `Sources/`. For a file that doesn't get completion, select it and tick **Indexing** under **Target Membership** in the File inspector.
+The Indexing target contains the Swift files in `Sources/`. For a file that doesn't get completion, select it and tick **Indexing** under **Target Membership** in the File inspector. Don't add the files in `Tests/`: they're for the Mac.
 
-Other editors with Swift support, such as VS Code and Cursor, use `compile_commands.json` in the source folder.
+## Testing on the Mac
+
+Code that doesn't use ESP-IDF can be tested on the Mac, without a board. The project's tests, in `Tests/`, use [Swift Testing](https://developer.apple.com/documentation/testing). To run them, run in Terminal, in the project folder (the one with `Package.swift`):
+
+```bash
+swift test
+```
+
+`swift test` only builds the plain Swift targets (such as `Blink`) and their tests: the `Firmware` and `ESPIDF` targets are only part of the package when ESP-IDF builds it.
+
+## Using Swift packages
+
+The firmware can use Swift packages that support Embedded Swift, such as [swift-mmio](https://github.com/apple/swift-mmio) for type-safe access to the chip's registers. Add them in `Package.swift`, where the `Firmware` target is declared:
+
+```swift
+dependencies.append(.package(url: "https://github.com/apple/swift-mmio.git", from: "0.1.1"))
+```
+
+and add `.product(name: "MMIO", package: "swift-mmio")` to the `Firmware` target's dependencies. The next `Cmd+B` downloads and builds it. A package with macros, like swift-mmio, takes a few minutes to build the first time.
 
 ## Debugging on the board
 
@@ -64,12 +92,12 @@ You can stop the firmware at breakpoints in your Swift code and look at the back
    It connects to the board, lets the firmware start, and pauses it at the `(lldb)` prompt. For example:
 
    ```
-   b main.swift:61    set a breakpoint on line 61 of main.swift
-   c                  continue until a breakpoint
-   bt                 show the backtrace
-   v                  show the variables
-   n / s              next line / step into
-   quit               stop debugging; the firmware continues
+   b Firmware.swift:49  set a breakpoint on line 49 of Firmware.swift
+   c                    continue until a breakpoint
+   bt                   show the backtrace
+   v                    show the variables
+   n / s                next line / step into
+   quit                 stop debugging; the firmware continues
    ```
 
 Up to 4 breakpoints can be set at once (they're hardware breakpoints, as the code runs from flash). Many variables show as "optimized out", because the firmware is optimized for size.
@@ -80,9 +108,9 @@ Some tasks below need Terminal. The commands must run in the source folder, the 
 
 In Xcode's Project navigator, Control-click the `___PROJECTNAME___` folder and choose **Open Terminal at Location**.
 
-## Adding a library
+## Adding an ESP-IDF library
 
-Libraries come from the [ESP-IDF Component Registry](https://components.espressif.com). Each library page shows its name, such as `espressif/button`.
+ESP-IDF libraries (components, written in C) come from the [ESP-IDF Component Registry](https://components.espressif.com). Each library page shows its name, such as `espressif/button`.
 
 In Terminal, in the source folder, run:
 
@@ -92,9 +120,9 @@ In Terminal, in the source folder, run:
 
 The first argument is the library's name. The second is the C header to include; check the library's documentation for it. If you leave it out, the script guesses it from the name (`button.h` here).
 
-The script adds the library to `main/idf_component.yml` and the header to `main/BridgingHeader.h`. Press `Cmd+B` to download and build it, and then use its functions from Swift.
+The script adds the library to `main/idf_component.yml` and the header to `Sources/ESPIDF/include/ESPIDF.h`. Press `Cmd+B` to download and build it, and then use its functions from Swift.
 
-To remove a library, delete its line from `main/idf_component.yml` and its `#include` from `main/BridgingHeader.h`.
+To remove a library, delete its line from `main/idf_component.yml` and its `#include` from `ESPIDF.h`.
 
 ## Changing ESP-IDF settings
 
@@ -119,7 +147,7 @@ CONFIG_IDF_TARGET="___VARIABLE_chip___"
 
 To build for another RISC-V based ESP32 (`esp32c2`, `esp32c3`, `esp32c5`, `esp32c6`, `esp32c61`, `esp32h2` or `esp32p4`), change this line and press `Cmd+B`. The build then reconfigures the project for the new chip, which recreates `sdkconfig` from `sdkconfig.defaults` (the previous one is kept as `sdkconfig.old`).
 
-The example blinks the RGB LED of Espressif's DevKit boards. Its pin is chosen per chip in `main/BridgingHeader.h` (`BOARD_RGB_LED_GPIO`); change it there if your board's LED is on another pin.
+The example blinks the RGB LED of Espressif's DevKit boards. Its pin is chosen per chip in `Sources/ESPIDF/include/ESPIDF.h` (`BOARD_RGB_LED_GPIO`); change it there if your board's LED is on another pin.
 
 ## Watching serial output in Terminal
 

@@ -13,7 +13,8 @@
 # Xcode uses for code completion, is built with xcodebuild, using the
 # template's settings for it and an Xcode project from tests/fixtures.
 # For the first chip, the build is also checked to report a Swift error
-# and a CMake error as Xcode issues, with their file and line.
+# and a CMake error as Xcode issues, with their file and line, and the Swift
+# package's tests are run on the Mac with swift test.
 #
 # Builds use the ESP-IDF and Swift toolchain that install.sh installed, so
 # run install.sh first. Each chip is a full ESP-IDF build of a few minutes.
@@ -138,7 +139,7 @@ add_xcode_project() {
 # Builds the Indexing target with xcodebuild, the way Xcode's indexer
 # compiles it: with the Indexing target's settings from TemplateInfo.plist
 # and the include-paths.rsp build.sh generated. Checks it compiles exactly the
-# Swift files ESP-IDF compiles (both use everything in Sources/).
+# Swift files of the firmware (the package's Sources/ folder).
 check_indexing() {
     python3 - "$TEMPLATE" "$WORK_DIR/$1" "$PROJECT_NAME" <<'EOF'
 import json, os, plistlib, subprocess, sys
@@ -148,13 +149,17 @@ plist = plistlib.load(open(os.path.join(template, "TemplateInfo.plist"), "rb"))
 target = next(t for t in plist["Targets"] if t.get("Name") == "Indexing")
 
 # Xcode only indexes files that belong to the Indexing target, which the
-# template declares per file with the target's identifier.
+# template declares per file with the target's identifier: the Swift files
+# in Sources/, but not the tests (which import Testing, for the Mac) or
+# Package.swift.
 for node, definition in plist["Definitions"].items():
-    if node.endswith(".swift") and target.get("TargetIdentifier") not in definition.get("TargetIdentifiers", []):
-        sys.exit(f"{node} doesn't belong to the Indexing target ({target.get('TargetIdentifier')}).")
+    indexed = target.get("TargetIdentifier") in definition.get("TargetIdentifiers", [])
+    if node.endswith(".swift") and indexed != node.startswith("Sources/"):
+        relation = "belongs" if indexed else "doesn't belong"
+        sys.exit(f"{node} {relation} to the Indexing target ({target.get('TargetIdentifier')}).")
 
 source_dir = os.path.join(project_dir, name)
-for generated in (".espswift/include-paths.rsp", "compile_commands.json"):
+for generated in (".espswift/include-paths.rsp",):
     if not os.path.exists(os.path.join(source_dir, generated)):
         sys.exit(f"Missing {generated}: setup_indexing.sh didn't run.")
 
@@ -180,15 +185,15 @@ if result.returncode != 0:
     errors = [line for line in output if "error:" in line]
     sys.exit("Building the Indexing target failed:\n" + "\n".join(errors[:20] or output[-20:]))
 
-# The Swift files the Indexing target compiled, and those ESP-IDF compiled.
+# The Swift files the Indexing target compiled, and those of the firmware.
 file_lists = [os.path.join(root, f) for root, _, files in os.walk(output)
               for f in files if f == "Indexing.SwiftFileList"]
 indexed = {os.path.realpath(line.strip()) for line in open(file_lists[0]) if line.strip()}
-compiled = {os.path.realpath(os.path.join(c["directory"], c["file"]))
-            for c in json.load(open(os.path.join(source_dir, "compile_commands.json")))
-            if c["file"].endswith(".swift")}
+compiled = {os.path.realpath(os.path.join(root, f))
+            for root, _, files in os.walk(os.path.join(project_dir, "Sources"))
+            for f in files if f.endswith(".swift")}
 if indexed != compiled:
-    sys.exit(f"The Indexing target compiles {sorted(indexed)}, but ESP-IDF compiles {sorted(compiled)}.")
+    sys.exit(f"The Indexing target compiles {sorted(indexed)}, but the firmware has {sorted(compiled)}.")
 EOF
 }
 
@@ -229,7 +234,7 @@ check_diagnostics() {
     local source_dir="$project_dir/$PROJECT_NAME"
     local file line output
 
-    for file in "$project_dir/Sources/main.swift" "$source_dir/main/CMakeLists.txt"; do
+    for file in "$project_dir/Sources/Firmware/Firmware.swift" "$source_dir/main/CMakeLists.txt"; do
         cp "$file" "$file.orig"
         case "$file" in
             *.swift) echo 'let notANumber: Int = "text"' >> "$file" ;;
@@ -249,6 +254,13 @@ check_diagnostics() {
             return 1
         fi
     done
+}
+
+# Runs the package's tests on the Mac (swift test), which build only the
+# plain Swift targets, without ESP-IDF.
+check_package_tests() {
+    (cd "$WORK_DIR/$1" && swift test 2>&1) | tail -5
+    [ "${PIPESTATUS[0]}" -eq 0 ] || { echo "swift test failed in $WORK_DIR/$1."; return 1; }
 }
 
 FAILED=()
@@ -275,11 +287,11 @@ for CHIP in "${CHIPS[@]}"; do
     if (cd "$SOURCE_DIR" && ESPSWIFT_BUILD_ONLY=1 ESPSWIFT_SCRIPTS="$REPO_ROOT/scripts" \
             PROJECT_DIR="$WORK_DIR/$CHIP" PROJECT_NAME="$PROJECT_NAME" ./build.sh) > "$LOG" 2>&1 \
         && [ -f "$SOURCE_DIR/build/$PROJECT_NAME.bin" ]; then
-        # The error check builds twice more, so it runs for the first chip
-        # only; how errors are reported doesn't depend on the chip.
+        # The error check builds twice more, and the package's tests don't
+        # depend on the chip, so they run for the first chip only.
         if check_indexing "$CHIP" >> "$LOG" 2>&1 && check_scheme "$CHIP" >> "$LOG" 2>&1 \
             && check_update "$CHIP" >> "$LOG" 2>&1 \
-            && { [ "$CHIP" != "${CHIPS[0]}" ] || check_diagnostics "$CHIP" >> "$LOG" 2>&1; }; then
+            && { [ "$CHIP" != "${CHIPS[0]}" ] || { check_diagnostics "$CHIP" && check_package_tests "$CHIP"; } >> "$LOG" 2>&1; }; then
             echo "Passed in $(( $(date +%s) - START ))s: $(grep -m1 "^$PROJECT_NAME.bin binary size" "$LOG")"
         else
             echo "Built, but a check of the Xcode project failed. Last lines of $LOG:"

@@ -5,6 +5,7 @@ This project is being developed as part of the [Swift Mentorship Program](https:
 ## Near-term
 
 - [ ] **Code completion with Xcode 26.** Projects build without errors in Xcode 26.6, but code completion and jump to definition don't work there; they're verified with Xcode 27 only, and so is CI. A starting point: compare the compiler arguments the editor gets (`xcodebuild -target Indexing -showBuildSettingsForIndex -json`) in Xcode 26.6 and 27. Testing it in CI would also need a test fixture (`tests/fixtures/project.pbxproj`) created by Xcode 26.
+- [ ] **Build the Swift package with SwiftPM's default build system.** The firmware build uses `swift build --build-system native` (see `scripts/build_package.py`): Swift Build, SwiftPM's default since Swift 6.4, links C targets with Apple's linker, which can't link code for the ESP32. SwiftPM warns that the native build system is deprecated and will be removed, so this needs a fix in Swift Build, or a way around it, before then. Worth reporting to the SwiftPM project.
 - [ ] **Test the other chips on hardware.** Only the ESP32-C6 has run on a board. The ESP32-C2, C3, C5, C61, H2 and P4 are tested by building only, including the per-chip LED pins and the LED over SPI on the C2 and C61.
 - [ ] **Cache downloads in CI.** Every CI run downloads and installs ESP-IDF, its tools and Swift (about 5 of its 11 minutes). Caching them between runs would make CI faster.
 - [ ] Signed and notarized installer
@@ -27,7 +28,6 @@ Not planned yet; worth considering.
 
 **Running without hardware**
 - [ ] **Run firmware in the [Wokwi](https://wokwi.com) simulator.** Wokwi simulates the ESP32-C3, C6, C61 and H2 (C5 in alpha, P4 in beta; see [its ESP32 guide](https://docs.wokwi.com/guides/esp32)). `Cmd+R` could run the firmware without a board, and the [Wokwi CLI](https://docs.wokwi.com/wokwi-ci/getting-started) could make CI check that it actually runs and prints the expected serial output, not just that it builds. Its free tier allows 50 minutes of simulation per 30 days.
-- [ ] **Host-side unit tests:** test pure Swift logic in `Sources/` that doesn't use ESP-IDF on the Mac, with Swift Testing.
 
 **Debugging**
 - [ ] **Debugging in Xcode's interface.** Debugging works with LLDB in Terminal (`debug.sh`). Xcode's own debugger refuses the firmware: a scheme's executable must be a Mac program ("Inappropriate file type or format"), also when waiting for it to launch. A remaining idea is a stand-in `debugserver` (set through `LLDB_DEBUGSERVER_PATH` from an LLDB init file) that relays Xcode's LLDB to OpenOCD, with a Mac stub as the scheme's executable.
@@ -42,11 +42,10 @@ Not planned yet; worth considering.
 
 **Examples and libraries**
 - [ ] **Example projects:** Wi-Fi with an HTTP request, BLE, an I2C sensor, deep sleep; each a small project in an `Examples/` folder that CI builds as well.
-- [ ] **Swift packages:** a way to use Embedded-compatible Swift packages (such as `swift-mmio`) from `Sources/`, as CMake can't use Swift Package Manager directly.
 
 **Quality and reach**
 - [ ] **More checks in CI:** ShellCheck for the scripts, `uninstall.sh`, and `install.sh`'s swiftly route (CI only uses swift.org's installer).
-- [ ] **A VS Code and Cursor guide:** code completion already works there through `compile_commands.json`, and the CodeLLDB extension could debug with the same setup as `debug.sh`; also a step toward Linux support.
+- [ ] **A VS Code and Cursor guide:** code completion there would need SourceKit-LSP pointed at the firmware build of the Swift package, and the CodeLLDB extension could debug with the same setup as `debug.sh`; also a step toward Linux support.
 - [ ] **A documentation site:** a DocC tutorial ("your first firmware") built around the template.
 
 ## Done
@@ -60,3 +59,4 @@ Not planned yet; worth considering.
 - [x] Each project's `build.sh` calls ESPSwift's installed build script, so updating ESPSwift updates the build of every project created from then on
 - [x] Projects carry a template version; the build warns when a project is out of date (older template, or code completion on an older Swift), and `update_project.sh` updates it
 - [x] Build errors and warnings (Swift, C, CMake, `sdkconfig.defaults`) in Xcode's Issue navigator, linked to their line; the build log leaves out ESP-IDF's other output
+- [x] The Swift code is a Swift package: it can use Embedded-compatible Swift packages (such as `swift-mmio`), and code that doesn't use ESP-IDF is tested on the Mac with `swift test`

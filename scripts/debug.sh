@@ -120,10 +120,10 @@ def espswift_connect(debugger, command, result, internal_dict):
     debugger.SetAsync(False)
     print()
     print("The firmware is paused. Set breakpoints, then continue. For example:")
-    print("  b main.swift:61    breakpoint on line 61 of main.swift")
-    print("  c                  continue")
-    print("  bt                 backtrace;  v  variables;  n  next line;  s  step in")
-    print("  process interrupt  pause (or Ctrl+C);  quit  stop debugging")
+    print("  b Firmware.swift:49  breakpoint on line 49 of Firmware.swift")
+    print("  c                    continue")
+    print("  bt                   backtrace;  v  variables;  n  next line;  s  step in")
+    print("  process interrupt    pause (or Ctrl+C);  quit  stop debugging")
 
 def __lldb_init_module(debugger, internal_dict):
     debugger.HandleCommand("command script add -f espswift_connect.espswift_connect espswift-connect")

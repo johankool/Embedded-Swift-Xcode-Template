@@ -133,7 +133,10 @@ fi
 echo "Build directory: $BUILD_DIR"
 
 # The helper scripts next to this one (~/.espswift/scripts once installed).
+# Exported for the project's main/CMakeLists.txt, which builds the Swift
+# package with build_package.py.
 ESPSWIFT_SCRIPTS="$(cd "$(dirname "$0")" && pwd)"
+export ESPSWIFT_SCRIPTS
 
 # ── ESP-IDF Output ───────────────────────────────────────────────
 

@@ -253,7 +253,7 @@ echo "[4/4] Installing helper scripts..."
 # These scripts are responsible for finding the connected board,
 # flashing the compiled binary to it, and reading the serial output.
 mkdir -p "$ESPSWIFT_HOME/scripts"
-cp "$(dirname "$0")/scripts/"*.sh "$ESPSWIFT_HOME/scripts/"
+cp "$(dirname "$0")/scripts/"*.sh "$(dirname "$0")/scripts/"*.py "$ESPSWIFT_HOME/scripts/"
 chmod +x "$ESPSWIFT_HOME/scripts/"*.sh
 
 # Compile the monitor wrapper binary. Xcode's Scheme > Run > Executable

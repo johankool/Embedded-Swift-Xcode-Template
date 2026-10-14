@@ -1,5 +1,5 @@
 //
-//  main.swift
+//  Firmware.swift
 //  ___PROJECTNAME___
 //
 //  Created by ___FULLUSERNAME___ on ___DATE___.
@@ -9,13 +9,16 @@
 // This example blinks the onboard NeoPixel (WS2812) RGB LED of
 // Espressif's DevKit boards.
 
+import Blink
+import ESPIDF
+
 @_cdecl("app_main")
 public func app_main() {
     print("Hello from Embedded Swift on ESP32!")
     print("Starting NeoPixel blink demo...")
     
     // ── LED Strip Configuration ──────────────────────────────
-    // board_rgb_led_new() in BridgingHeader.h sets up the led_strip
+    // board_rgb_led_new() in ESPIDF.h sets up the led_strip
     // driver for the board's LED: it picks the LED's pin for the
     // chip, and the peripheral that generates the precise timing
     // pulses WS2812 LEDs need (RMT, or SPI on chips without RMT).
@@ -36,31 +39,16 @@ public func app_main() {
     var colorIndex: UInt32 = 0
     
     while true {
-        // Set RGB based on current index.
-        // Brightness kept low (32/255) to avoid blinding intensity.
-        var r: UInt32 = 0
-        var g: UInt32 = 0
-        var b: UInt32 = 0
-        var name: StaticString = "Off"
-        
-        switch colorIndex % 4 {
-        case 0:
-            r = 32; name = "Red"
-        case 1:
-            g = 32; name = "Green"
-        case 2:
-            b = 32; name = "Blue"
-        default:
-            name = "Off"
-        }
+        // The color for this step: red, green, blue or off (see Blink.swift).
+        let step = blinkStep(colorIndex)
         
         // Set the first (and only) pixel to the current color.
-        led_strip_set_pixel(ledStrip, 0, r, g, b)
+        led_strip_set_pixel(ledStrip, 0, step.red, step.green, step.blue)
         
         // Push the pixel data to the LED hardware.
         led_strip_refresh(ledStrip)
         
-        print("LED: \(name)")
+        print("LED: \(step.name)")
         
         // Wait 1 second using FreeRTOS task delay.
         vTaskDelay(pd_ms_to_ticks(1000))

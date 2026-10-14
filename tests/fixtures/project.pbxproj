@@ -7,13 +7,19 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		C7EDD5FE307C01C800178979 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7EDD5FC307C01C800178979 /* main.swift */; };
+		C7EDD5FE307C01C800178979 /* Firmware.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7EDD5FC307C01C800178979 /* Firmware.swift */; };
+		C7EDD611307C01C800178979 /* Blink.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7EDD610307C01C800178979 /* Blink.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		C7EDD5F0307C01C800178979 /* libIndexing.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libIndexing.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		C7EDD5F3307C01C800178979 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		C7EDD5FC307C01C800178979 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		C7EDD5FC307C01C800178979 /* Firmware.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Firmware.swift; sourceTree = "<group>"; };
+		C7EDD610307C01C800178979 /* Blink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Blink.swift; sourceTree = "<group>"; };
+		C7EDD612307C01C800178979 /* ESPIDF.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ESPIDF.h; sourceTree = "<group>"; };
+		C7EDD613307C01C800178979 /* ESPIDF.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ESPIDF.c; sourceTree = "<group>"; };
+		C7EDD614307C01C800178979 /* BlinkTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlinkTests.swift; sourceTree = "<group>"; };
+		C7EDD615307C01C800178979 /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -30,7 +36,9 @@
 			children = (
 				C7EDD5F3307C01C800178979 /* README.md */,
 				C7EDD5F2307C01C800178979 /* ___PROJECTNAME___ */,
+				C7EDD615307C01C800178979 /* Package.swift */,
 				C7EDD5FB307C01C800178979 /* Sources */,
+				C7EDD61A307C01C800178979 /* Tests */,
 				C7EDD5F1307C01C800178979 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -46,9 +54,60 @@
 		C7EDD5FB307C01C800178979 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				C7EDD5FC307C01C800178979 /* main.swift */,
+				C7EDD616307C01C800178979 /* Firmware */,
+				C7EDD618307C01C800178979 /* ESPIDF */,
+				C7EDD617307C01C800178979 /* Blink */,
 			);
 			path = Sources;
+			sourceTree = "<group>";
+		};
+		C7EDD616307C01C800178979 /* Firmware */ = {
+			isa = PBXGroup;
+			children = (
+				C7EDD5FC307C01C800178979 /* Firmware.swift */,
+			);
+			path = Firmware;
+			sourceTree = "<group>";
+		};
+		C7EDD618307C01C800178979 /* ESPIDF */ = {
+			isa = PBXGroup;
+			children = (
+				C7EDD619307C01C800178979 /* include */,
+				C7EDD613307C01C800178979 /* ESPIDF.c */,
+			);
+			path = ESPIDF;
+			sourceTree = "<group>";
+		};
+		C7EDD619307C01C800178979 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				C7EDD612307C01C800178979 /* ESPIDF.h */,
+			);
+			path = include;
+			sourceTree = "<group>";
+		};
+		C7EDD617307C01C800178979 /* Blink */ = {
+			isa = PBXGroup;
+			children = (
+				C7EDD610307C01C800178979 /* Blink.swift */,
+			);
+			path = Blink;
+			sourceTree = "<group>";
+		};
+		C7EDD61A307C01C800178979 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				C7EDD61B307C01C800178979 /* BlinkTests */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		C7EDD61B307C01C800178979 /* BlinkTests */ = {
+			isa = PBXGroup;
+			children = (
+				C7EDD614307C01C800178979 /* BlinkTests.swift */,
+			);
+			path = BlinkTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -127,7 +186,8 @@
 		C7EDD5EE307C01C800178979 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			files = (
-				C7EDD5FE307C01C800178979 /* main.swift in Sources */,
+				C7EDD5FE307C01C800178979 /* Firmware.swift in Sources */,
+				C7EDD611307C01C800178979 /* Blink.swift in Sources */,
 			);
 		};
 /* End PBXSourcesBuildPhase section */
@@ -288,9 +348,8 @@
 				SWIFT_ENABLE_EMBEDDED = YES;
 				SWIFT_ENABLE_EXPLICIT_MODULES = NO;
 				SWIFT_INSTALL_MODULE_ABI_DESCRIPTOR = NO;
-				SWIFT_OBJC_BRIDGING_HEADER = "$(PROJECT_DIR)/___PROJECTNAME___/main/BridgingHeader.h";
 				SWIFT_TARGET_TRIPLE = "riscv32-none-none-eabi";
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TOOLCHAINS = ESPSWIFT_SWIFT_TOOLCHAIN_ID;
 			};
 			name = Debug;
@@ -319,9 +378,8 @@
 				SWIFT_ENABLE_EMBEDDED = YES;
 				SWIFT_ENABLE_EXPLICIT_MODULES = NO;
 				SWIFT_INSTALL_MODULE_ABI_DESCRIPTOR = NO;
-				SWIFT_OBJC_BRIDGING_HEADER = "$(PROJECT_DIR)/___PROJECTNAME___/main/BridgingHeader.h";
 				SWIFT_TARGET_TRIPLE = "riscv32-none-none-eabi";
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TOOLCHAINS = ESPSWIFT_SWIFT_TOOLCHAIN_ID;
 			};
 			name = Release;

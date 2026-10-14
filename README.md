@@ -79,7 +79,9 @@ To add an ESP-IDF component library, run this in Terminal from your project's so
 ~/.espswift/scripts/add_library.sh espressif/button iot_button.h
 ```
 
-This automatically updates `main/idf_component.yml` and `main/BridgingHeader.h`. Press `Cmd+B` to download and build the library.
+This automatically updates `main/idf_component.yml` and `Sources/ESPIDF/include/ESPIDF.h`, the C header Swift code imports with `import ESPIDF`. Press `Cmd+B` to download and build the library.
+
+Projects are Swift packages too: Swift packages that support Embedded Swift, such as [swift-mmio](https://github.com/apple/swift-mmio), are added in the project's `Package.swift`, and code that doesn't use ESP-IDF can be tested on the Mac with `swift test`. The project's README explains both.
 
 Every new project also includes a `README.md` that walks through this and other common tasks, such as changing ESP-IDF settings with `idf.py menuconfig`.
 
@@ -122,7 +124,7 @@ The RISC-V based ESP32 chips: ESP32-C2, C3, C5, C6, C61, H2 and P4. Choose one i
 
 The Xtensa based chips (the original ESP32, ESP32-S2 and ESP32-S3, found for example on ESP32 DevKitV1 boards) are not supported: Swift doesn't support Xtensa.
 
-To switch an existing project to another chip, change `CONFIG_IDF_TARGET` in `sdkconfig.defaults` and build again. The example's LED pin is set per chip in `main/BridgingHeader.h`, for Espressif's DevKit boards.
+To switch an existing project to another chip, change `CONFIG_IDF_TARGET` in `sdkconfig.defaults` and build again. The example's LED pin is set per chip in `Sources/ESPIDF/include/ESPIDF.h`, for Espressif's DevKit boards.
 
 ### Why is there an Indexing target?
 
@@ -166,6 +168,7 @@ Embedded-Swift-Xcode-Template/
 │   └── test_template.sh             # Builds the template for every chip (also run in CI)
 ├── scripts/
 │   ├── build.sh                     # Builds a project (each project's build.sh calls it)
+│   ├── build_package.py             # Builds a project's Swift package with SwiftPM
 │   ├── filter_build_output.sh       # Turns ESP-IDF's build output into Xcode issues
 │   ├── run.sh                       # Cmd+R: flashes the last build, then starts the monitor
 │   ├── debug.sh                     # Debugs the firmware on the board with LLDB
@@ -174,6 +177,7 @@ Embedded-Swift-Xcode-Template/
 │   ├── monitor.sh                   # Streams serial output to stdout
 │   ├── setup_scheme.sh              # Auto-configures Xcode Run scheme
 │   ├── setup_indexing.sh            # Compiler settings for code completion
+│   ├── indexing_flags.py            # (with SwiftPM's flags for the package)
 │   ├── update_project.sh            # Updates projects created from an older template
 │   └── add_library.sh               # Adds ESP-IDF component libraries
 ├── installer/
@@ -189,11 +193,16 @@ Embedded-Swift-Xcode-Template/
 ├── gitignore                # Installed as .gitignore at the project root
 ├── scheme.xcscheme          # Run scheme (Cmd+R: flash and show serial output)
 ├── main/
-│   ├── CMakeLists.txt       # Component configuration; compiles all of Sources/
+│   ├── CMakeLists.txt       # Builds the Swift package (build_package.py) and links it
 │   ├── idf_component.yml    # ESP-IDF dependencies
-│   └── BridgingHeader.h     # C ↔ Swift bridge
-└── Sources/
-    └── main.swift           # Firmware entry point (next to the .xcodeproj in new projects)
+│   └── swift_flags.c        # Empty; provides ESP-IDF's C flags to the Swift package build
+├── Package.swift            # The Swift package (next to the .xcodeproj in new projects)
+├── Sources/
+│   ├── Firmware/Firmware.swift   # Firmware entry point (app_main)
+│   ├── ESPIDF/include/ESPIDF.h   # ESP-IDF's C APIs for Swift (import ESPIDF)
+│   └── Blink/Blink.swift    # Plain Swift, testable on the Mac
+└── Tests/
+    └── BlinkTests/          # Run on the Mac with swift test
 ```
 
 ---

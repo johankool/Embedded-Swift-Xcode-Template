@@ -5,7 +5,8 @@
 #
 # This script updates two files automatically:
 #   1. main/idf_component.yml  — adds the component as a dependency
-#   2. main/BridgingHeader.h   — adds the corresponding #include
+#   2. Sources/ESPIDF/include/ESPIDF.h — adds the corresponding #include, so
+#      Swift code sees it with `import ESPIDF`
 #
 # Usage: bash add_library.sh <component> [header]
 #
@@ -56,7 +57,8 @@ else
 fi
 
 IDF_COMPONENT_YML="$PROJECT_DIR/main/idf_component.yml"
-BRIDGING_HEADER="$PROJECT_DIR/main/BridgingHeader.h"
+# The ESPIDF module of the Swift package, next to the source folder.
+ESPIDF_HEADER="$PROJECT_DIR/../Sources/ESPIDF/include/ESPIDF.h"
 
 # ── Update idf_component.yml ─────────────────────────────────────
 
@@ -71,22 +73,22 @@ else
     echo "Added '$COMPONENT' to idf_component.yml."
 fi
 
-# ── Update BridgingHeader.h ──────────────────────────────────────
+# ── Update ESPIDF.h ──────────────────────────────────────────────
 
-if [ ! -f "$BRIDGING_HEADER" ]; then
-    echo "Warning: BridgingHeader.h not found at $BRIDGING_HEADER" >&2
+if [ ! -f "$ESPIDF_HEADER" ]; then
+    echo "Warning: ESPIDF.h not found at $ESPIDF_HEADER" >&2
     echo "Skipping header include." >&2
     exit 0
 fi
 
 # Check if the header is already included.
-if grep -q "#include \"$HEADER\"" "$BRIDGING_HEADER"; then
-    echo "Header '$HEADER' already included in BridgingHeader.h. Skipping."
+if grep -q "#include \"$HEADER\"" "$ESPIDF_HEADER"; then
+    echo "Header '$HEADER' already included in ESPIDF.h. Skipping."
 else
     # Insert the new #include before the closing #endif.
     # This keeps the header organized and avoids appending after #endif.
-    sed -i '' "s|#endif /\* BridgingHeader_h \*/|#include \"$HEADER\"\n\n#endif /* BridgingHeader_h */|" "$BRIDGING_HEADER"
-    echo "Added '#include \"$HEADER\"' to BridgingHeader.h."
+    sed -i '' "s|#endif /\* ESPIDF_h \*/|#include \"$HEADER\"\n\n#endif /* ESPIDF_h */|" "$ESPIDF_HEADER"
+    echo "Added '#include \"$HEADER\"' to ESPIDF.h."
 fi
 
 # ── Done ─────────────────────────────────────────────────────────

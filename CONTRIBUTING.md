@@ -50,7 +50,7 @@ The test doesn't cover Xcode or hardware, so for changes there, also check by ha
 - After running `install.sh` and restarting Xcode, **ESP32 RISC-V** appears under File → New → Project → Other, with the **Chip** pop-up.
 - A new project's `sdkconfig.defaults` has the chip you picked, and `README.md` sits next to the `.xcodeproj`.
 - `Cmd+B` builds without flashing, and `Cmd+R` flashes your board and shows its serial output.
-- After that first build, code completion works in `Sources/main.swift` (e.g. typing `led_strip_`), and Command-clicking `vTaskDelay` opens FreeRTOS's `task.h`.
+- After that first build, code completion works in `Sources/Firmware/Firmware.swift` (e.g. typing `led_strip_` or `blinkStep`), and Command-clicking `vTaskDelay` opens FreeRTOS's `task.h`.
 
 ### 5. Commit
 
@@ -81,6 +81,7 @@ Embedded-Swift-Xcode-Template/
 │   └── build-template.yml           # Runs install.sh and the test in CI
 ├── scripts/
 │   ├── build.sh                     # Builds a project (each project's build.sh calls it)
+│   ├── build_package.py             # Builds a project's Swift package with SwiftPM
 │   ├── filter_build_output.sh       # Turns ESP-IDF's build output into Xcode issues
 │   ├── run.sh                       # Cmd+R: flashes the last build, then starts the monitor
 │   ├── debug.sh                     # Debugs the firmware on the board with LLDB
@@ -90,6 +91,7 @@ Embedded-Swift-Xcode-Template/
 │   ├── monitor_wrapper.c            # Native binary wrapper for Xcode
 │   ├── setup_scheme.sh              # Auto-configures Xcode Run scheme
 │   ├── setup_indexing.sh            # Compiler settings for code completion
+│   ├── indexing_flags.py            # (with SwiftPM's flags for the package)
 │   ├── update_project.sh            # Updates projects created from an older template
 │   └── add_library.sh               # Adds ESP-IDF component libraries
 ├── installer/
@@ -108,9 +110,15 @@ Embedded-Swift-Xcode-Template/
 ├── main/
 │   ├── CMakeLists.txt
 │   ├── idf_component.yml
-│   └── BridgingHeader.h
-└── Sources/
-    └── main.swift
+│   └── swift_flags.c
+├── Package.swift
+├── Sources/
+│   ├── Firmware/Firmware.swift
+│   ├── ESPIDF/include/ESPIDF.h
+│   ├── ESPIDF/ESPIDF.c
+│   └── Blink/Blink.swift
+└── Tests/
+    └── BlinkTests/BlinkTests.swift
 ```
 
 ---

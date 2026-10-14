@@ -171,6 +171,12 @@ in_cmake {
 /^Skipping linker script generation/ { next }
 /^[0-9]+ errors? generated\.$/ { next }
 
+# SwiftPM, building the Swift package (build_package.py).
+/^Building for (production|debugging)\.\.\.$/ || /^Build of product .* complete!/ || /^Build complete!/ { next }
+/^warning: .--build-system native. has been deprecated/ { next }
+# Building the macros of a dependency for the Mac.
+/^ld: warning: building for macOS-[0-9.]+, but linking with dylib .* which was built for newer version/ { next }
+
 # The partition table, between two lines of asterisks.
 /^Partition table binary generated/ { in_partitions = 1; next }
 in_partitions { if (/^\*+$/ && ++partition_rules == 2) { in_partitions = 0; partition_rules = 0 } next }

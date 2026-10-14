@@ -40,36 +40,94 @@
 			<key>TargetIndices</key>
 			<array/>
 		</dict>
-		<key>Sources/main.swift</key>
+		<key>Package.swift</key>
+		<dict>
+			<key>IsTopLevel</key>
+			<true/>
+			<key>Path</key>
+			<string>Package.swift</string>
+			<key>TargetIndices</key>
+			<array/>
+		</dict>
+		<key>Sources/Firmware/Firmware.swift</key>
 		<dict>
 			<key>Group</key>
 			<array>
 				<string>Sources</string>
+				<string>Firmware</string>
 			</array>
 			<key>IsTopLevel</key>
 			<true/>
 			<key>Path</key>
-			<string>main_main.swift</string>
+			<string>Firmware_Firmware.swift</string>
 			<key>TargetIdentifiers</key>
 			<array>
 				<string>com.espswift.target.indexing</string>
 			</array>
 		</dict>
+		<key>Sources/ESPIDF/include/ESPIDF.h</key>
+		<dict>
+			<key>Group</key>
+			<array>
+				<string>Sources</string>
+				<string>ESPIDF</string>
+				<string>include</string>
+			</array>
+			<key>IsTopLevel</key>
+			<true/>
+			<key>Path</key>
+			<string>ESPIDF_ESPIDF.h</string>
+			<key>TargetIndices</key>
+			<array/>
+		</dict>
+		<key>Sources/ESPIDF/ESPIDF.c</key>
+		<dict>
+			<key>Group</key>
+			<array>
+				<string>Sources</string>
+				<string>ESPIDF</string>
+			</array>
+			<key>IsTopLevel</key>
+			<true/>
+			<key>Path</key>
+			<string>ESPIDF_ESPIDF.c</string>
+			<key>TargetIndices</key>
+			<array/>
+		</dict>
+		<key>Sources/Blink/Blink.swift</key>
+		<dict>
+			<key>Group</key>
+			<array>
+				<string>Sources</string>
+				<string>Blink</string>
+			</array>
+			<key>IsTopLevel</key>
+			<true/>
+			<key>Path</key>
+			<string>Blink_Blink.swift</string>
+			<key>TargetIdentifiers</key>
+			<array>
+				<string>com.espswift.target.indexing</string>
+			</array>
+		</dict>
+		<key>Tests/BlinkTests/BlinkTests.swift</key>
+		<dict>
+			<key>Group</key>
+			<array>
+				<string>Tests</string>
+				<string>BlinkTests</string>
+			</array>
+			<key>IsTopLevel</key>
+			<true/>
+			<key>Path</key>
+			<string>BlinkTests_BlinkTests.swift</string>
+			<key>TargetIndices</key>
+			<array/>
+		</dict>
 		<key>build.sh</key>
 		<dict>
 			<key>Path</key>
 			<string>build.sh</string>
-			<key>TargetIndices</key>
-			<array/>
-		</dict>
-		<key>main/BridgingHeader.h</key>
-		<dict>
-			<key>Group</key>
-			<array>
-				<string>main</string>
-			</array>
-			<key>Path</key>
-			<string>main_BridgingHeader.h</string>
 			<key>TargetIndices</key>
 			<array/>
 		</dict>
@@ -95,6 +153,17 @@
 			<key>TargetIndices</key>
 			<array/>
 		</dict>
+		<key>main/swift_flags.c</key>
+		<dict>
+			<key>Group</key>
+			<array>
+				<string>main</string>
+			</array>
+			<key>Path</key>
+			<string>main_swift_flags.c</string>
+			<key>TargetIndices</key>
+			<array/>
+		</dict>
 		<key>sdkconfig.defaults</key>
 		<dict>
 			<key>Path</key>
@@ -115,10 +184,15 @@
 		<string>build.sh</string>
 		<string>CMakeLists.txt</string>
 		<string>sdkconfig.defaults</string>
-		<string>main/BridgingHeader.h</string>
 		<string>main/CMakeLists.txt</string>
 		<string>main/idf_component.yml</string>
-		<string>Sources/main.swift</string>
+		<string>main/swift_flags.c</string>
+		<string>Package.swift</string>
+		<string>Sources/Firmware/Firmware.swift</string>
+		<string>Sources/ESPIDF/include/ESPIDF.h</string>
+		<string>Sources/ESPIDF/ESPIDF.c</string>
+		<string>Sources/Blink/Blink.swift</string>
+		<string>Tests/BlinkTests/BlinkTests.swift</string>
 		<string>../.gitignore</string>
 		<string>../___PROJECTNAME___.xcodeproj/xcshareddata/xcschemes/___PROJECTNAME___.xcscheme</string>
 	</array>
@@ -209,12 +283,10 @@
 				<string>NO</string>
 				<key>SWIFT_INSTALL_MODULE_ABI_DESCRIPTOR</key>
 				<string>NO</string>
-				<key>SWIFT_OBJC_BRIDGING_HEADER</key>
-				<string>$(PROJECT_DIR)/___PROJECTNAME___/main/BridgingHeader.h</string>
 				<key>SWIFT_TARGET_TRIPLE</key>
 				<string>riscv32-none-none-eabi</string>
 				<key>SWIFT_VERSION</key>
-				<string>5.0</string>
+				<string>6.0</string>
 				<key>TOOLCHAINS</key>
 				<string>ESPSWIFT_SWIFT_TOOLCHAIN_ID</string>
 			</dict>

@@ -1,15 +1,15 @@
 //
-//  BridgingHeader.h
+//  ESPIDF.h
 //  ___PROJECTNAME___
 //
 //  Created by ___FULLUSERNAME___ on ___DATE___.
 //
 
-// This bridging header exposes ESP-IDF C APIs to Swift code.
-// Add any C headers you need to access from Swift here.
+// The ESPIDF module: ESP-IDF's C APIs for Swift code, which uses them with
+// `import ESPIDF`. Add any C headers you need to access from Swift here.
 
-#ifndef BridgingHeader_h
-#define BridgingHeader_h
+#ifndef ESPIDF_h
+#define ESPIDF_h
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -61,4 +61,4 @@ static inline esp_err_t board_rgb_led_new(led_strip_handle_t *strip) {
 #endif
 }
 
-#endif /* BridgingHeader_h */
+#endif /* ESPIDF_h */
