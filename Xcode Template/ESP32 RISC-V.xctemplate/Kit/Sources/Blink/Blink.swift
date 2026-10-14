@@ -1,12 +1,5 @@
-//
-//  Blink.swift
-//  ___PROJECTNAME___
-//
-//  Created by ___FULLUSERNAME___ on ___DATE___.
-//
-
 // The blink pattern, in plain Swift: it doesn't use ESP-IDF, so it can be
-// tested on the Mac (see Tests/BlinkTests).
+// tested on the Mac (see Tests/BlinkTests: Cmd+U).
 
 /// One step of the blink pattern: a color for the LED and its name.
 public struct BlinkStep: Equatable {

@@ -59,4 +59,4 @@ Not planned yet; worth considering.
 - [x] Each project's `build.sh` calls ESPSwift's installed build script, so updating ESPSwift updates the build of every project created from then on
 - [x] Projects carry a template version; the build warns when a project is out of date (older template, or code completion on an older Swift), and `update_project.sh` updates it
 - [x] Build errors and warnings (Swift, C, CMake, `sdkconfig.defaults`) in Xcode's Issue navigator, linked to their line; the build log leaves out ESP-IDF's other output
-- [x] The Swift code is a Swift package: it can use Embedded-compatible Swift packages (such as `swift-mmio`), and code that doesn't use ESP-IDF is tested on the Mac with `swift test`
+- [x] The Swift code is in Swift packages: the firmware can use Embedded-compatible Swift packages (such as `swift-mmio`), and code that doesn't use ESP-IDF is in a package of the project that Xcode tests on the Mac (`Cmd+U`)

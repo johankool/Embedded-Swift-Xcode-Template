@@ -1,5 +1,5 @@
-"""Builds a project's Swift package (Package.swift next to the Xcode project)
-for the ESP32 with SwiftPM, as a step of the ESP-IDF build. The project's
+"""Builds a project's firmware package (Firmware/Package.swift, next to the
+Xcode project) for the ESP32 with SwiftPM, as a step of the ESP-IDF build. The project's
 main/CMakeLists.txt runs it on every build (SwiftPM itself decides what to
 rebuild) and links the library it produces into the firmware.
 
@@ -8,15 +8,12 @@ the compile command of an empty C file in the main component
 (compile_commands.json, which CMake writes before the build starts), and go
 into a SwiftPM toolset file together with the flags Embedded Swift needs.
 
-The package declares its firmware targets (which need ESP-IDF) only when
-ESPSWIFT_FIRMWARE=1, which this script sets; without it, `swift test` on the
-Mac builds just the plain Swift targets and their tests.
-
-Usage: python3 build_package.py <build_dir> <flags_source> <package_dir> <swift_bin_dir>
-                                <output_lib> [<implicit_include> ...]
+Usage: python3 build_package.py <build_dir> <flags_source> <project_dir> <package_dir>
+                                <swift_bin_dir> <output_lib> [<implicit_include> ...]
   build_dir         ESP-IDF's build folder.
   flags_source      The C file whose compile command provides ESP-IDF's flags.
-  package_dir       The folder with Package.swift.
+  project_dir       The project folder, with the Xcode project.
+  package_dir       The folder with the firmware's Package.swift.
   swift_bin_dir     The usr/bin folder of the Swift toolchain.
   output_lib        Where to put the built library (libFirmware.a).
   implicit_include  The C compiler's own include folders, such as picolibc's;
@@ -45,9 +42,9 @@ def swiftpm_scratch_dir(build_dir, project_dir):
     return os.path.join(build_dir, "swiftpm")
 
 
-build_dir, flags_source, package_dir, swift_bin_dir, output_lib = sys.argv[1:6]
-implicit_includes = sys.argv[6:]
-scratch_dir = swiftpm_scratch_dir(build_dir, package_dir)
+build_dir, flags_source, project_dir, package_dir, swift_bin_dir, output_lib = sys.argv[1:7]
+implicit_includes = sys.argv[7:]
+scratch_dir = swiftpm_scratch_dir(build_dir, project_dir)
 triple = "riscv32-none-none-eabi"
 
 # ── ESP-IDF's C flags ────────────────────────────────────────────
@@ -117,7 +114,7 @@ result = subprocess.run([
     # links C targets with Apple's linker, which can't link ESP32 code.
     "--build-system", "native",
     "--product", "Firmware",
-], env={**os.environ, "ESPSWIFT_FIRMWARE": "1"})
+])
 if result.returncode != 0:
     sys.exit(result.returncode)
 

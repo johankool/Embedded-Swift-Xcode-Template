@@ -5,7 +5,7 @@
 #
 # This script updates two files automatically:
 #   1. main/idf_component.yml  — adds the component as a dependency
-#   2. Sources/ESPIDF/include/ESPIDF.h — adds the corresponding #include, so
+#   2. Firmware/ESPIDF/include/ESPIDF.h — adds the corresponding #include, so
 #      Swift code sees it with `import ESPIDF`
 #
 # Usage: bash add_library.sh <component> [header]
@@ -57,8 +57,8 @@ else
 fi
 
 IDF_COMPONENT_YML="$PROJECT_DIR/main/idf_component.yml"
-# The ESPIDF module of the Swift package, next to the source folder.
-ESPIDF_HEADER="$PROJECT_DIR/../Sources/ESPIDF/include/ESPIDF.h"
+# The ESPIDF module of the firmware package, next to the source folder.
+ESPIDF_HEADER="$PROJECT_DIR/../Firmware/ESPIDF/include/ESPIDF.h"
 
 # ── Update idf_component.yml ─────────────────────────────────────
 

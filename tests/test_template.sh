@@ -114,15 +114,23 @@ for node in plist["Nodes"]:
     os.makedirs(os.path.dirname(destination), exist_ok=True)
 
     source = os.path.join(template, definition["Path"])
-    text = open(source, encoding="utf-8").read()
-    for placeholder, value in placeholders.items():
-        text = text.replace(placeholder, value)
-    leftover = re.findall(r"___[A-Za-z_:]+___", text)
-    if leftover:
-        sys.exit(f"Unfilled placeholder {leftover[0]} in {definition['Path']}")
-    with open(destination, "w", encoding="utf-8") as f:
-        f.write(text)
-    os.chmod(destination, os.stat(source).st_mode)
+    # A folder (such as a Swift package) is copied with everything in it.
+    if os.path.isdir(source):
+        files = [(os.path.join(folder, f), os.path.join(destination, os.path.relpath(folder, source), f))
+                 for folder, _, names in os.walk(source) for f in names]
+    else:
+        files = [(source, destination)]
+    for source, destination in files:
+        os.makedirs(os.path.dirname(destination), exist_ok=True)
+        text = open(source, encoding="utf-8").read()
+        for placeholder, value in placeholders.items():
+            text = text.replace(placeholder, value)
+        leftover = re.findall(r"___[A-Za-z_:]+___", text)
+        if leftover:
+            sys.exit(f"Unfilled placeholder {leftover[0]} in {os.path.relpath(source, template)}")
+        with open(destination, "w", encoding="utf-8") as f:
+            f.write(text)
+        os.chmod(destination, os.stat(source).st_mode)
 EOF
 }
 
@@ -139,22 +147,22 @@ add_xcode_project() {
 # Builds the Indexing target with xcodebuild, the way Xcode's indexer
 # compiles it: with the Indexing target's settings from TemplateInfo.plist
 # and the include-paths.rsp build.sh generated. Checks it compiles exactly the
-# Swift files of the firmware (the package's Sources/ folder).
+# Swift files of the Firmware target, as SwiftPM built it.
 check_indexing() {
     python3 - "$TEMPLATE" "$WORK_DIR/$1" "$PROJECT_NAME" <<'EOF'
-import json, os, plistlib, subprocess, sys
+import json, os, plistlib, shutil, subprocess, sys
 
 template, project_dir, name = sys.argv[1:]
 plist = plistlib.load(open(os.path.join(template, "TemplateInfo.plist"), "rb"))
 target = next(t for t in plist["Targets"] if t.get("Name") == "Indexing")
 
 # Xcode only indexes files that belong to the Indexing target, which the
-# template declares per file with the target's identifier: the Swift files
-# in Sources/, but not the tests (which import Testing, for the Mac) or
-# Package.swift.
+# template declares per file with the target's identifier: the firmware's
+# Swift files, but not its Package.swift. (Xcode indexes the Kit package
+# itself, for the Mac.)
 for node, definition in plist["Definitions"].items():
     indexed = target.get("TargetIdentifier") in definition.get("TargetIdentifiers", [])
-    if node.endswith(".swift") and indexed != node.startswith("Sources/"):
+    if node.endswith(".swift") and indexed != (node.startswith("Firmware/") and not node.endswith("Package.swift")):
         relation = "belongs" if indexed else "doesn't belong"
         sys.exit(f"{node} {relation} to the Indexing target ({target.get('TargetIdentifier')}).")
 
@@ -170,14 +178,34 @@ if target["SharedSettings"].get("TOOLCHAINS") != "ESPSWIFT_SWIFT_TOOLCHAIN_ID":
 toolchain = os.environ.get("ESPSWIFT_TOOLCHAIN") or open(os.path.expanduser("~/.espswift/swift-toolchain")).read().strip()
 toolchain_id = plistlib.load(open(os.path.join(toolchain, "Info.plist"), "rb"))["CFBundleIdentifier"]
 
+# The template's settings go into the Indexing target, as Xcode puts them
+# there when it creates a project. (On xcodebuild's command line, they would
+# apply to everything it builds, including the Kit package's manifest.)
+# Xcode reads a project file in XML too. This is done in a copy of the
+# project next to it, so the other checks see the project as created.
+xcodeproj = os.path.join(project_dir, "IndexingCheck.xcodeproj")
+shutil.rmtree(xcodeproj, ignore_errors=True)
+shutil.copytree(os.path.join(project_dir, name + ".xcodeproj"), xcodeproj)
+pbxproj = os.path.join(xcodeproj, "project.pbxproj")
+project = plistlib.loads(subprocess.run(["plutil", "-convert", "xml1", "-o", "-", pbxproj],
+                                        capture_output=True, check=True).stdout)
+objects = project["objects"]
+indexing = next(o for o in objects.values() if o.get("isa") == "PBXNativeTarget" and o.get("name") == "Indexing")
+for configuration in objects[indexing["buildConfigurationList"]]["buildConfigurations"]:
+    objects[configuration]["buildSettings"] = {
+        key: value.replace("___PROJECTNAME___", name).replace("ESPSWIFT_SWIFT_TOOLCHAIN_ID", toolchain_id)
+        for key, value in target["SharedSettings"].items()}
+with open(pbxproj, "wb") as f:
+    plistlib.dump(project, f)
+
 output = os.path.join(project_dir, "xcodebuild")
-settings = [f"{key}={value.replace('___PROJECTNAME___', name).replace('ESPSWIFT_SWIFT_TOOLCHAIN_ID', toolchain_id)}"
-            for key, value in target["SharedSettings"].items()]
-result = subprocess.run(["xcodebuild", "-project", os.path.join(project_dir, name + ".xcodeproj"),
+result = subprocess.run(["xcodebuild", "-project", xcodeproj,
                          "-target", "Indexing", "-configuration", "Debug",
                          "SYMROOT=" + os.path.join(output, "Products"),
-                         "OBJROOT=" + os.path.join(output, "Intermediates"), *settings, "build"],
+                         "OBJROOT=" + os.path.join(output, "Intermediates"), "build"],
                         capture_output=True, text=True)
+# Other scripts take the first .xcodeproj in the project folder.
+shutil.rmtree(xcodeproj)
 if result.returncode != 0:
     # xcodebuild reports compile errors on stdout and problems with the
     # project itself (e.g. one it can't open) on stderr.
@@ -185,15 +213,18 @@ if result.returncode != 0:
     errors = [line for line in output if "error:" in line]
     sys.exit("Building the Indexing target failed:\n" + "\n".join(errors[:20] or output[-20:]))
 
-# The Swift files the Indexing target compiled, and those of the firmware.
+# The Swift files the Indexing target compiled, and those SwiftPM compiled
+# for the Firmware target (its sources file, in SwiftPM's working folder).
 file_lists = [os.path.join(root, f) for root, _, files in os.walk(output)
               for f in files if f == "Indexing.SwiftFileList"]
 indexed = {os.path.realpath(line.strip()) for line in open(file_lists[0]) if line.strip()}
-compiled = {os.path.realpath(os.path.join(root, f))
-            for root, _, files in os.walk(os.path.join(project_dir, "Sources"))
-            for f in files if f.endswith(".swift")}
+sources = [os.path.join(root, f) for root, _, files in os.walk(project_dir)
+           for f in files if f == "sources" and root.endswith("/release/Firmware.build")]
+if not sources:
+    sys.exit("SwiftPM's list of the Firmware target's sources wasn't found.")
+compiled = {os.path.realpath(line.strip()) for line in open(sources[0]) if line.strip()}
 if indexed != compiled:
-    sys.exit(f"The Indexing target compiles {sorted(indexed)}, but the firmware has {sorted(compiled)}.")
+    sys.exit(f"The Indexing target compiles {sorted(indexed)}, but SwiftPM compiled {sorted(compiled)}.")
 EOF
 }
 
@@ -234,7 +265,7 @@ check_diagnostics() {
     local source_dir="$project_dir/$PROJECT_NAME"
     local file line output
 
-    for file in "$project_dir/Sources/Firmware/Firmware.swift" "$source_dir/main/CMakeLists.txt"; do
+    for file in "$project_dir/Firmware/Firmware.swift" "$source_dir/main/CMakeLists.txt"; do
         cp "$file" "$file.orig"
         case "$file" in
             *.swift) echo 'let notANumber: Int = "text"' >> "$file" ;;
@@ -256,11 +287,16 @@ check_diagnostics() {
     done
 }
 
-# Runs the package's tests on the Mac (swift test), which build only the
-# plain Swift targets, without ESP-IDF.
+# Runs the Kit package's tests on the Mac: with swift test, and with the
+# Test action of the template's scheme (Cmd+U in Xcode), which check_scheme
+# copied to TemplateRunScheme.
 check_package_tests() {
-    (cd "$WORK_DIR/$1" && swift test 2>&1) | tail -5
-    [ "${PIPESTATUS[0]}" -eq 0 ] || { echo "swift test failed in $WORK_DIR/$1."; return 1; }
+    local kit="$WORK_DIR/$1/Packages/${PROJECT_NAME}Kit"
+    (cd "$kit" && swift test 2>&1) | tail -5
+    [ "${PIPESTATUS[0]}" -eq 0 ] || { echo "swift test failed in $kit."; return 1; }
+    xcodebuild test -project "$WORK_DIR/$1/$PROJECT_NAME.xcodeproj" -scheme TemplateRunScheme \
+        -destination "platform=macOS" -derivedDataPath "$WORK_DIR/$1/xcodebuild-test" 2>&1 | tail -5
+    [ "${PIPESTATUS[0]}" -eq 0 ] || { echo "The scheme's Test action (Cmd+U) failed."; return 1; }
 }
 
 FAILED=()

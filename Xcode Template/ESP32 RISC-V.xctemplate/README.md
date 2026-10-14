@@ -16,36 +16,39 @@ Errors and warnings from the build, in Swift, C, `CMakeLists.txt` and `sdkconfig
 
 ## What's in this project
 
-Your Swift code is a Swift package: `Package.swift` describes it, and ESP-IDF builds it (with the Swift Package Manager) into the firmware.
+Your Swift code is in two Swift packages:
+
+- **Firmware**: the firmware itself, `app_main` and the code that uses ESP-IDF. ESP-IDF builds it (with the Swift Package Manager) into the firmware. Xcode gives it code completion for ESP-IDF's C APIs (see below).
+- **___PROJECTNAME___Kit**, in `Packages/`: plain Swift code that doesn't use ESP-IDF, such as the blink pattern in `Blink`, and its tests. The firmware uses it, and Xcode builds and tests it on the Mac (`Cmd+U`).
 
 ```
 ___PROJECTNAME___/
-├── README.md                 # This file
+├── README.md                   # This file
 ├── ___PROJECTNAME___.xcodeproj
-├── Package.swift             # Your Swift code's targets, and the Swift packages it uses
-├── Sources/
-│   ├── Firmware/
-│   │   └── Firmware.swift    # Your firmware code starts here (app_main)
-│   ├── ESPIDF/include/
-│   │   └── ESPIDF.h          # ESP-IDF's C APIs for Swift: `import ESPIDF`
-│   └── Blink/
-│       └── Blink.swift       # Plain Swift, without ESP-IDF: testable on the Mac
-├── Tests/
-│   └── BlinkTests/           # Tests for Blink, run on the Mac with `swift test`
-└── ___PROJECTNAME___/         # The ESP-IDF project (the "source folder")
-    ├── build.sh              # Run by Xcode on Cmd+B: calls ESPSwift's build script
-    ├── CMakeLists.txt        # ESP-IDF project file
-    ├── sdkconfig.defaults    # The chip and your ESP-IDF settings
-    ├── sdkconfig             # Full ESP-IDF settings, created on first build
-    ├── .espswift/            # Compiler settings for code completion, created by every build (hidden)
+├── Firmware/
+│   ├── Firmware.swift          # Your firmware code starts here (app_main)
+│   ├── Package.swift           # The firmware's packages, such as swift-mmio
+│   └── ESPIDF/include/
+│       └── ESPIDF.h            # ESP-IDF's C APIs for Swift: `import ESPIDF`
+├── Packages/
+│   └── ___PROJECTNAME___Kit/    # Plain Swift code, tested on the Mac
+│       ├── Package.swift
+│       ├── Sources/Blink/      # The blink pattern
+│       └── Tests/BlinkTests/   # Its tests: Cmd+U
+└── ___PROJECTNAME___/           # The ESP-IDF project (the "source folder")
+    ├── build.sh                # Run by Xcode on Cmd+B: calls ESPSwift's build script
+    ├── CMakeLists.txt          # ESP-IDF project file
+    ├── sdkconfig.defaults      # The chip and your ESP-IDF settings
+    ├── sdkconfig               # Full ESP-IDF settings, created on first build
+    ├── .espswift/              # Compiler settings for code completion, created by every build (hidden)
     └── main/
-        ├── idf_component.yml # ESP-IDF libraries this project depends on
-        └── CMakeLists.txt    # Builds the Swift package and links it into the firmware
+        ├── idf_component.yml   # ESP-IDF libraries this project depends on
+        └── CMakeLists.txt      # Builds the Firmware package and links it into the firmware
 ```
 
-To add a Swift file, create it in a folder in `Sources/`, such as `Sources/Firmware/`, and tick the **Indexing** target in the dialog for the new file so it gets code completion (see below). It's compiled into your firmware on the next `Cmd+B`; there's no list of files to update.
+To add Swift code to the firmware, create a file in `Firmware/` (also in a subfolder), and tick the **Indexing** target in the dialog for the new file so it gets code completion (see below). It's compiled into your firmware on the next `Cmd+B`; there's no list of files to update.
 
-The `Firmware` target is the firmware itself: `app_main` and the code that uses ESP-IDF. Code that doesn't need ESP-IDF, like the blink pattern in `Blink`, can go in targets of its own, which you can test on the Mac (see below). To add one, create a folder for it in `Sources/` and add it to `Package.swift`, next to `Blink`.
+Code that doesn't need ESP-IDF can go in the Kit package instead, where you can test it. Create files in a folder in its `Sources/`, such as `Sources/Blink/`, with File ▸ New ▸ File from Template in Xcode. A new folder there is a new module: add it to the Kit's `Package.swift`, next to `Blink`, and to the Firmware package's `Package.swift`, next to `Blink`, to use it in the firmware. Code in the Kit package is built into the firmware too, so it must work in Embedded Swift.
 
 Xcode keeps the build output in DerivedData, like any other Xcode project. **Product ▸ Show Build Folder in Finder** takes you there.
 
@@ -55,27 +58,21 @@ Code completion, jump to definition (Command-click) and inline errors work for y
 
 This is what the project's second target, **Indexing**, is for. Xcode doesn't index the main target, because ESP-IDF builds it, so it indexes the Indexing target instead. You never need to build it or choose its scheme.
 
-The Indexing target contains the Swift files in `Sources/`. For a file that doesn't get completion, select it and tick **Indexing** under **Target Membership** in the File inspector. Don't add the files in `Tests/`: they're for the Mac.
+The Indexing target contains the Swift files in `Firmware/`. For a file there that doesn't get completion, select it and tick **Indexing** under **Target Membership** in the File inspector. The Kit package gets code completion from Xcode itself, like any Swift package.
 
 ## Testing on the Mac
 
-Code that doesn't use ESP-IDF can be tested on the Mac, without a board. The project's tests, in `Tests/`, use [Swift Testing](https://developer.apple.com/documentation/testing). To run them, run in Terminal, in the project folder (the one with `Package.swift`):
+Code in the Kit package can be tested on the Mac, without a board. Its tests, in `Packages/___PROJECTNAME___Kit/Tests/`, use [Swift Testing](https://developer.apple.com/documentation/testing). Press `Cmd+U` to run them, or run in Terminal, in the Kit's folder:
 
 ```bash
 swift test
 ```
 
-`swift test` only builds the plain Swift targets (such as `Blink`) and their tests: the `Firmware` and `ESPIDF` targets are only part of the package when ESP-IDF builds it.
+A new test target in the Kit runs with `Cmd+U` once it's added to the scheme: **Product ▸ Scheme ▸ Edit Scheme ▸ Test**.
 
 ## Using Swift packages
 
-The firmware can use Swift packages that support Embedded Swift, such as [swift-mmio](https://github.com/apple/swift-mmio) for type-safe access to the chip's registers. Add them in `Package.swift`, where the `Firmware` target is declared:
-
-```swift
-dependencies.append(.package(url: "https://github.com/apple/swift-mmio.git", from: "0.1.1"))
-```
-
-and add `.product(name: "MMIO", package: "swift-mmio")` to the `Firmware` target's dependencies. The next `Cmd+B` downloads and builds it. A package with macros, like swift-mmio, takes a few minutes to build the first time.
+The firmware can use Swift packages that support Embedded Swift, such as [swift-mmio](https://github.com/apple/swift-mmio) for type-safe access to the chip's registers. Add them to `Firmware/Package.swift`, where the lines for swift-mmio show how: the package under `dependencies`, and its product under the `Firmware` target's dependencies. The next `Cmd+B` downloads and builds it, and code completion picks it up after that build. A package with macros, like swift-mmio, takes a few minutes to build the first time.
 
 ## Debugging on the board
 
@@ -120,7 +117,7 @@ In Terminal, in the source folder, run:
 
 The first argument is the library's name. The second is the C header to include; check the library's documentation for it. If you leave it out, the script guesses it from the name (`button.h` here).
 
-The script adds the library to `main/idf_component.yml` and the header to `Sources/ESPIDF/include/ESPIDF.h`. Press `Cmd+B` to download and build it, and then use its functions from Swift.
+The script adds the library to `main/idf_component.yml` and the header to `Firmware/ESPIDF/include/ESPIDF.h`. Press `Cmd+B` to download and build it, and then use its functions from Swift.
 
 To remove a library, delete its line from `main/idf_component.yml` and its `#include` from `ESPIDF.h`.
 
@@ -147,7 +144,7 @@ CONFIG_IDF_TARGET="___VARIABLE_chip___"
 
 To build for another RISC-V based ESP32 (`esp32c2`, `esp32c3`, `esp32c5`, `esp32c6`, `esp32c61`, `esp32h2` or `esp32p4`), change this line and press `Cmd+B`. The build then reconfigures the project for the new chip, which recreates `sdkconfig` from `sdkconfig.defaults` (the previous one is kept as `sdkconfig.old`).
 
-The example blinks the RGB LED of Espressif's DevKit boards. Its pin is chosen per chip in `Sources/ESPIDF/include/ESPIDF.h` (`BOARD_RGB_LED_GPIO`); change it there if your board's LED is on another pin.
+The example blinks the RGB LED of Espressif's DevKit boards. Its pin is chosen per chip in `Firmware/ESPIDF/include/ESPIDF.h` (`BOARD_RGB_LED_GPIO`); change it there if your board's LED is on another pin.
 
 ## Watching serial output in Terminal
 

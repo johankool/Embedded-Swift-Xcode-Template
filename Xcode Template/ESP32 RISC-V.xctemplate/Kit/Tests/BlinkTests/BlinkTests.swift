@@ -1,12 +1,5 @@
-//
-//  BlinkTests.swift
-//  ___PROJECTNAME___
-//
-//  Created by ___FULLUSERNAME___ on ___DATE___.
-//
-
-// Tests for the Blink target, run on the Mac: `swift test` in the project
-// folder (the one with Package.swift).
+// Tests for the Blink target, run on the Mac: press Cmd+U in Xcode, or run
+// `swift test` in the package folder.
 
 import Blink
 import Testing

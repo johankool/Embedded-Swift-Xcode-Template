@@ -50,7 +50,7 @@ The test doesn't cover Xcode or hardware, so for changes there, also check by ha
 - After running `install.sh` and restarting Xcode, **ESP32 RISC-V** appears under File → New → Project → Other, with the **Chip** pop-up.
 - A new project's `sdkconfig.defaults` has the chip you picked, and `README.md` sits next to the `.xcodeproj`.
 - `Cmd+B` builds without flashing, and `Cmd+R` flashes your board and shows its serial output.
-- After that first build, code completion works in `Sources/Firmware/Firmware.swift` (e.g. typing `led_strip_` or `blinkStep`), and Command-clicking `vTaskDelay` opens FreeRTOS's `task.h`.
+- After that first build, code completion works in `Firmware/Firmware.swift` (e.g. typing `led_strip_` or `blinkStep`), `Cmd+U` runs the Kit package's tests, and Command-clicking `vTaskDelay` opens FreeRTOS's `task.h`.
 
 ### 5. Commit
 
@@ -111,14 +111,15 @@ Embedded-Swift-Xcode-Template/
 │   ├── CMakeLists.txt
 │   ├── idf_component.yml
 │   └── swift_flags.c
-├── Package.swift
-├── Sources/
-│   ├── Firmware/Firmware.swift
+├── Firmware/
+│   ├── Firmware.swift
+│   ├── Package.swift
 │   ├── ESPIDF/include/ESPIDF.h
-│   ├── ESPIDF/ESPIDF.c
-│   └── Blink/Blink.swift
-└── Tests/
-    └── BlinkTests/BlinkTests.swift
+│   └── ESPIDF/ESPIDF.c
+└── Kit/                     # Packages/<Project>Kit
+    ├── Package.swift
+    ├── Sources/Blink/Blink.swift
+    └── Tests/BlinkTests/BlinkTests.swift
 ```
 
 ---
